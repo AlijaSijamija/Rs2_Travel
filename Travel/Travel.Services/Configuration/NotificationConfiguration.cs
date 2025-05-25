@@ -1,0 +1,22 @@
+﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore;
+using Travel.Services.Database;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Travel.Services.Configuration
+{
+    public sealed class NotificationConfiguration : IEntityTypeConfiguration<Notification>
+    {
+        public void Configure(EntityTypeBuilder<Notification> builder)
+        {
+            builder.Property(u => u.Id).ValueGeneratedOnAdd();
+            builder.HasQueryFilter(u => u.DeletedAt == null);
+            builder.Property(w => w.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+           builder.HasOne(n=>n.Admin).WithMany(n => n.Notifications).OnDelete(DeleteBehavior.NoAction) ;
+        }
+    }
+}
