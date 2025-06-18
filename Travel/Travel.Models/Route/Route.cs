@@ -17,8 +17,8 @@ namespace Travel.Models.Route
         public long ToCityId { get; set; }
         public City.City ToCity { get; set; }
         public string TravelTime { get; set; }
-        public DateTime DepartureTime { get; set; }
-        public DateTime ArrivalTime { get; set; }
+        public TimeSpan DepartureTime { get; set; }
+        public TimeSpan ArrivalTime { get; set; }
         public long AgencyId { get; set; }
         public Agency.Agency Agency { get; set; }
     }

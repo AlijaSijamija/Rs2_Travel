@@ -14,6 +14,9 @@ namespace Travel.Services.Database
         public virtual DbSet<City> Cities { get; set; }
         public virtual DbSet<Agency> Agencies { get; set; }
         public virtual DbSet<Route> Routes { get; set; }
+        public virtual DbSet<TripService> TripServices { get; set; }
+        public virtual DbSet<OrganizedTrip> OrganizedTrips { get; set; }
+        public virtual DbSet<RouteTicket> RouteTickets { get; set; }
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
 
@@ -28,6 +31,9 @@ namespace Travel.Services.Database
             builder.ApplyConfiguration(new NotificationConfiguration());
             builder.ApplyConfiguration(new AgencyConfiguration());
             builder.ApplyConfiguration(new RouteConfiguration());
+            builder.ApplyConfiguration(new TripServiceConfiguration());
+            builder.ApplyConfiguration(new OrganizedTripServiceConfiguration());
+            builder.ApplyConfiguration(new RouteTicketConfiguration());
             
         }
 

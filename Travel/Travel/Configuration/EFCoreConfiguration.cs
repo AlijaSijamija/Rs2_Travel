@@ -49,6 +49,11 @@ namespace Travel.Configuration
                     SeedAgencies(context);
                 }
 
+                if (!context.TripServices.Any())
+                {
+                    SeedTripService(context);
+                }
+
             }
         }
 
@@ -171,6 +176,24 @@ SET IDENTITY_INSERT Agencies OFF;";
 
             context.Database.ExecuteSqlRaw(sqlCommand);
         }
+
+        private static void SeedTripService(AppDbContext context)
+        {
+            var sqlCommand = @"
+    SET IDENTITY_INSERT TripServices ON;
+
+    INSERT INTO TripServices (Id, Name, CreatedById, CreatedAt) VALUES
+    (1, 'Accommodation', NULL, '2024-06-01T00:00:00.0000000'),
+    (2, 'Transportation', NULL, '2024-06-01T00:00:00.0000000'),
+    (3, 'Breakfast', NULL, '2024-06-01T00:00:00.0000000'),
+    (4, 'Tour Guide', NULL, '2024-06-01T00:00:00.0000000'),
+    (5, 'Travel Insurance', NULL, '2024-06-01T00:00:00.0000000');
+
+    SET IDENTITY_INSERT TripServices OFF;";
+
+            context.Database.ExecuteSqlRaw(sqlCommand);
+        }
+
 
 
     }
