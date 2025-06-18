@@ -10,7 +10,6 @@ namespace Travel.Controllers
     {
         public SectionController(ILogger<BaseController<Models.Section.Section, Models.Filters.BaseSearchObject, long>> logger, ISectionService service) : base(logger, service)
         {
-
         }
     }
 }
