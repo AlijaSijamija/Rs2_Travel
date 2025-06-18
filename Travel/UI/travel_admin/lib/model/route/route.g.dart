@@ -21,12 +21,8 @@ RouteModel _$RouteModelFromJson(Map<String, dynamic> json) => RouteModel(
           : CityModel.fromJson(json['fromCity'] as Map<String, dynamic>),
       (json['fromCityId'] as num?)?.toInt(),
       json['travelTime'] as String?,
-      json['departureTime'] == null
-          ? null
-          : DateTime.parse(json['departureTime'] as String),
-      json['arrivalTime'] == null
-          ? null
-          : DateTime.parse(json['arrivalTime'] as String),
+      json['departureTime'] as String?,
+      json['arrivalTime'] as String?,
       json['agency'] == null
           ? null
           : AgencyModel.fromJson(json['agency'] as Map<String, dynamic>),
@@ -45,8 +41,8 @@ Map<String, dynamic> _$RouteModelToJson(RouteModel instance) =>
       'toCity': instance.toCity,
       'fromCity': instance.fromCity,
       'travelTime': instance.travelTime,
-      'departureTime': instance.departureTime?.toIso8601String(),
-      'arrivalTime': instance.arrivalTime?.toIso8601String(),
+      'departureTime': instance.departureTime,
+      'arrivalTime': instance.arrivalTime,
       'agencyId': instance.agencyId,
       'agency': instance.agency,
     };

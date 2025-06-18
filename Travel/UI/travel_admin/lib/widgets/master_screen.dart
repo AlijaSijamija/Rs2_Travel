@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:travel_admin/main.dart';
 import 'package:travel_admin/screens/agencies/agency_list_screen.dart';
 import 'package:travel_admin/screens/dashboard/dashboard.dart';
 import 'package:travel_admin/screens/notifications/notification_list_screen.dart';
+import 'package:travel_admin/screens/organized_trips/organized_trip_list_screen.dart';
+import 'package:travel_admin/screens/route_ticket_report/route_ticket_report_screen.dart';
+import 'package:travel_admin/screens/routes/route_list_screen.dart';
 import 'package:travel_admin/screens/users/user_list_screen.dart';
+import 'package:travel_admin/utils/util.dart';
 
 class MasterScreenWidget extends StatefulWidget {
   final Widget? child;
@@ -101,54 +106,40 @@ class _MasterScreenWidgetState extends State<MasterScreenWidget> {
                 },
               ),
               ListTile(
-                leading: Icon(Icons.route,
+                leading: Icon(Icons.route_sharp,
                     color: Colors.white), // Add an icon to the ListTile
-                title: Text("Payments", style: TextStyle(color: Colors.white)),
+                title: Text("Routes", style: TextStyle(color: Colors.white)),
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                        builder: (context) => const PaymentListScreen()),
+                        builder: (context) => const RouteListScreen()),
                   );
                 },
               ),
-              // ListTile(
-              //   leading: Icon(Icons.payments_rounded,
-              //       color: Colors.white), // Add an icon to the ListTile
-              //   title: Text("Payments report",
-              //       style: TextStyle(color: Colors.white)),
-              //   onTap: () {
-              //     Navigator.of(context).push(
-              //       MaterialPageRoute(
-              //           builder: (context) =>
-              //               const PaymentReportListScreen()),
-              //     );
-              //   },
-              // ),
-              // ListTile(
-              //   leading: Icon(Icons.library_books,
-              //       color: Colors.white), // Add an icon to the ListTile
-              //   title: Text("Annual plan templates",
-              //       style: TextStyle(color: Colors.white)),
-              //   onTap: () {
-              //     Navigator.of(context).push(
-              //       MaterialPageRoute(
-              //           builder: (context) =>
-              //               const AnnualPlanTemplateListscreen()),
-              //     );
-              //   },
-              // ),
-              // ListTile(
-              //   leading: Icon(Icons.collections_bookmark_sharp,
-              //       color: Colors.white), // Add an icon to the ListTile
-              //   title: Text("Annual plans",
-              //       style: TextStyle(color: Colors.white)),
-              //   onTap: () {
-              //     Navigator.of(context).push(
-              //       MaterialPageRoute(
-              //           builder: (context) => const AnnualPlanListScreen()),
-              //     );
-              //   },
-              // ),
+              ListTile(
+                leading: Icon(Icons.directions_bus,
+                    color: Colors.white), // Add an icon to the ListTile
+                title: Text("Organized trips",
+                    style: TextStyle(color: Colors.white)),
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                        builder: (context) => const OrganizedTripListScreen()),
+                  );
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.report,
+                    color: Colors.white), // Add an icon to the ListTile
+                title: Text("Annual plan templates",
+                    style: TextStyle(color: Colors.white)),
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                        builder: (context) => const AgencyReportScreen()),
+                  );
+                },
+              ),
               // ListTile(
               //   leading: Icon(Icons.volunteer_activism_sharp,
               //       color: Colors.white), // Add an icon to the ListTile
@@ -221,19 +212,19 @@ class _MasterScreenWidgetState extends State<MasterScreenWidget> {
               //     );
               //   },
               // ),
-              // ListTile(
-              //   leading: Icon(Icons.logout,
-              //       color: Colors.white), // Add an icon to the ListTile
-              //   title: Text("Logout", style: TextStyle(color: Colors.white)),
-              //   onTap: () {
-              //     Authorization.token = null;
-              //     Navigator.pushAndRemoveUntil(
-              //       context,
-              //       MaterialPageRoute(builder: (context) => LoginPage()),
-              //       (route) => false,
-              //     );
-              //   },
-              // ),
+              ListTile(
+                leading: Icon(Icons.logout,
+                    color: Colors.white), // Add an icon to the ListTile
+                title: Text("Logout", style: TextStyle(color: Colors.white)),
+                onTap: () {
+                  Authorization.token = null;
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => LoginPage()),
+                    (route) => false,
+                  );
+                },
+              ),
             ],
           ),
         ),

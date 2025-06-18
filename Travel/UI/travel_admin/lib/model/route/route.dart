@@ -17,8 +17,8 @@ class RouteModel {
   CityModel? toCity;
   CityModel? fromCity;
   String? travelTime;
-  DateTime? departureTime;
-  DateTime? arrivalTime;
+  String? departureTime;
+  String? arrivalTime;
   int? agencyId;
   AgencyModel? agency;
   RouteModel(
