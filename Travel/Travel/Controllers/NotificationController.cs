@@ -10,7 +10,6 @@ namespace Travel.Controllers
     {
         public NotificationController(ILogger<BaseController<Models.Notification.Notification, Models.Filters.NotificationSearchObject, long>> logger, INotificationService service) : base(logger, service)
         {
-
         }
     }
 }
