@@ -3,17 +3,20 @@ using Microsoft.AspNetCore.Routing;
 using Travel.Models.Agency;
 using Travel.Models.City;
 using Travel.Models.Notification;
+using Travel.Models.OrganizedTrip;
 using Travel.Models.Route;
+using Travel.Models.RouteTicket;
 using Travel.Models.Section;
+using Travel.Models.TripService;
 
 namespace Travel.Services.MappingProfile
 {
-    public  class MappingProfile : Profile
+    public class MappingProfile : Profile
     {
         public MappingProfile()
         {
 
-            CreateMap<Travel.Services.Database.City, City>();
+            CreateMap<Database.City, City>();
             CreateMap<Database.Notification, Notification>();
             CreateMap<NotificationRequest, Database.Notification>();
             CreateMap<Database.Section, Section>();
@@ -22,6 +25,12 @@ namespace Travel.Services.MappingProfile
             CreateMap<AgencyRequest, Database.Agency>();
             CreateMap<Database.Route, Travel.Models.Route.Route>();
             CreateMap<RouteRequest, Database.Route>();
+            CreateMap<Database.TripService, TripService>();
+            CreateMap<TripService, Database.TripService>();
+            CreateMap<Database.OrganizedTrip, Travel.Models.OrganizedTrip.OrganizedTrip>();
+            CreateMap<OrganizedTripRequest, Database.OrganizedTrip>();
+            CreateMap<Database.RouteTicket, Travel.Models.RouteTicket.RouteTicket>();
+            CreateMap<RouteTicketRequest, Database.RouteTicket>();
         }
     }
 }

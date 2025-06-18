@@ -18,5 +18,7 @@ namespace Travel.Services.Database
         public string AdminId { get; set; }
         public User Admin { get; set; }
         public virtual ICollection<Route> Routes { get; set; } = new List<Route>();
+        public virtual ICollection<OrganizedTrip> Trips { get; set; } = new List<OrganizedTrip>();
+        public virtual ICollection<RouteTicket> RouteTickets { get; set; } = new List<RouteTicket>();
     }
 }

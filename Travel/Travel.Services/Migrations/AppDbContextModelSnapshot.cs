@@ -22,6 +22,21 @@ namespace Travel.Services.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("OrganizedTripTripService", b =>
+                {
+                    b.Property<long>("IncludedServicesId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("TripsId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("IncludedServicesId", "TripsId");
+
+                    b.HasIndex("TripsId");
+
+                    b.ToTable("OrganizedTripTripService");
+                });
+
             modelBuilder.Entity("RoleUser", b =>
                 {
                     b.Property<string>("RolesId")
@@ -170,6 +185,69 @@ namespace Travel.Services.Migrations
                     b.ToTable("Notifications");
                 });
 
+            modelBuilder.Entity("Travel.Services.Database.OrganizedTrip", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("AgencyId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("AvailableSeats")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ContactInfo")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("CreatedById")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Destination")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("LastModified")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double>("Price")
+                        .HasColumnType("float");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("TripName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AgencyId");
+
+                    b.ToTable("OrganizedTrips");
+                });
+
             modelBuilder.Entity("Travel.Services.Database.Role", b =>
                 {
                     b.Property<string>("Id")
@@ -211,8 +289,8 @@ namespace Travel.Services.Migrations
                     b.Property<long>("AgencyId")
                         .HasColumnType("bigint");
 
-                    b.Property<DateTime>("ArrivalTime")
-                        .HasColumnType("datetime2");
+                    b.Property<TimeSpan>("ArrivalTime")
+                        .HasColumnType("time");
 
                     b.Property<double>("ChildPrice")
                         .HasColumnType("float");
@@ -228,8 +306,8 @@ namespace Travel.Services.Migrations
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("DepartureTime")
-                        .HasColumnType("datetime2");
+                    b.Property<TimeSpan>("DepartureTime")
+                        .HasColumnType("time");
 
                     b.Property<long>("FromCityId")
                         .HasColumnType("bigint");
@@ -261,6 +339,55 @@ namespace Travel.Services.Migrations
                     b.ToTable("Routes");
                 });
 
+            modelBuilder.Entity("Travel.Services.Database.RouteTicket", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("AgencyId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("CreatedById")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("LastModified")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PassengerId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<double>("Price")
+                        .HasColumnType("float");
+
+                    b.Property<long>("RouteId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AgencyId");
+
+                    b.HasIndex("PassengerId");
+
+                    b.HasIndex("RouteId");
+
+                    b.ToTable("RouteTickets");
+                });
+
             modelBuilder.Entity("Travel.Services.Database.Section", b =>
                 {
                     b.Property<long>("Id")
@@ -288,6 +415,37 @@ namespace Travel.Services.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Sections");
+                });
+
+            modelBuilder.Entity("Travel.Services.Database.TripService", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("CreatedById")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("LastModified")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TripServices");
                 });
 
             modelBuilder.Entity("Travel.Services.Database.User", b =>
@@ -362,6 +520,21 @@ namespace Travel.Services.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("OrganizedTripTripService", b =>
+                {
+                    b.HasOne("Travel.Services.Database.TripService", null)
+                        .WithMany()
+                        .HasForeignKey("IncludedServicesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Travel.Services.Database.OrganizedTrip", null)
+                        .WithMany()
+                        .HasForeignKey("TripsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("RoleUser", b =>
                 {
                     b.HasOne("Travel.Services.Database.Role", null)
@@ -415,6 +588,17 @@ namespace Travel.Services.Migrations
                     b.Navigation("Section");
                 });
 
+            modelBuilder.Entity("Travel.Services.Database.OrganizedTrip", b =>
+                {
+                    b.HasOne("Travel.Services.Database.Agency", "Agency")
+                        .WithMany("Trips")
+                        .HasForeignKey("AgencyId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Agency");
+                });
+
             modelBuilder.Entity("Travel.Services.Database.Route", b =>
                 {
                     b.HasOne("Travel.Services.Database.Agency", "Agency")
@@ -442,6 +626,33 @@ namespace Travel.Services.Migrations
                     b.Navigation("ToCity");
                 });
 
+            modelBuilder.Entity("Travel.Services.Database.RouteTicket", b =>
+                {
+                    b.HasOne("Travel.Services.Database.Agency", "Agency")
+                        .WithMany("RouteTickets")
+                        .HasForeignKey("AgencyId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("Travel.Services.Database.User", "Passenger")
+                        .WithMany("RouteTickets")
+                        .HasForeignKey("PassengerId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("Travel.Services.Database.Route", "Route")
+                        .WithMany("RouteTickets")
+                        .HasForeignKey("RouteId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Agency");
+
+                    b.Navigation("Passenger");
+
+                    b.Navigation("Route");
+                });
+
             modelBuilder.Entity("Travel.Services.Database.User", b =>
                 {
                     b.HasOne("Travel.Services.Database.City", "City")
@@ -454,7 +665,11 @@ namespace Travel.Services.Migrations
 
             modelBuilder.Entity("Travel.Services.Database.Agency", b =>
                 {
+                    b.Navigation("RouteTickets");
+
                     b.Navigation("Routes");
+
+                    b.Navigation("Trips");
                 });
 
             modelBuilder.Entity("Travel.Services.Database.City", b =>
@@ -468,6 +683,11 @@ namespace Travel.Services.Migrations
                     b.Navigation("Users");
                 });
 
+            modelBuilder.Entity("Travel.Services.Database.Route", b =>
+                {
+                    b.Navigation("RouteTickets");
+                });
+
             modelBuilder.Entity("Travel.Services.Database.Section", b =>
                 {
                     b.Navigation("Notifications");
@@ -478,6 +698,8 @@ namespace Travel.Services.Migrations
                     b.Navigation("Agencies");
 
                     b.Navigation("Notifications");
+
+                    b.Navigation("RouteTickets");
                 });
 #pragma warning restore 612, 618
         }

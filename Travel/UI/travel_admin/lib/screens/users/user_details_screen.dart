@@ -164,13 +164,15 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                   Expanded(
                     flex: 1,
                     child: Padding(
-                      padding: EdgeInsets.all(16.0),
-                      child: Image.asset(
-                        "assets/images/form.png",
-                        height: 200,
-                        width: 200,
-                      ),
-                    ),
+                        padding: const EdgeInsets.all(8.0),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.asset(
+                            "assets/images/image2.jpg",
+                            height: 300,
+                            width: 300,
+                          ),
+                        )),
                   ),
                   SizedBox(width: 30),
                   Expanded(
