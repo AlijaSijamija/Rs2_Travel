@@ -211,8 +211,8 @@ class _NotificationDetailScreenState extends State<NotificationDetailScreen> {
                     padding: EdgeInsets.all(16.0),
                     child: Image.asset(
                       "assets/images/image2.jpg",
-                      height: 300,
-                      width: 300,
+                      height: 200,
+                      width: 200,
                     ),
                   ),
                 ),

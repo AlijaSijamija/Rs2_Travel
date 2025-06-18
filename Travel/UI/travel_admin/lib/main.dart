@@ -4,11 +4,7 @@ import 'package:travel_admin/providers/account_provider.dart';
 import 'package:travel_admin/providers/agency_provider.dart';
 import 'package:travel_admin/providers/city_provider.dart';
 import 'package:travel_admin/providers/notification_provider.dart';
-import 'package:travel_admin/providers/organized_trip_provider.dart';
-import 'package:travel_admin/providers/route_provider.dart';
-import 'package:travel_admin/providers/route_ticket.dart';
 import 'package:travel_admin/providers/section_provider.dart';
-import 'package:travel_admin/providers/trip_service_provider.dart';
 import 'package:travel_admin/screens/dashboard/dashboard.dart';
 import 'package:travel_admin/utils/util.dart';
 
@@ -20,10 +16,6 @@ void main() {
       ChangeNotifierProvider(create: (_) => NotificationProvider()),
       ChangeNotifierProvider(create: (_) => SectionProvider()),
       ChangeNotifierProvider(create: (_) => AgencyProvider()),
-      ChangeNotifierProvider(create: (_) => RouteProvider()),
-      ChangeNotifierProvider(create: (_) => TripServiceProvider()),
-      ChangeNotifierProvider(create: (_) => OrganizedTripProvider()),
-      ChangeNotifierProvider(create: (_) => RouteTicketProvider()),
     ],
     child: const MyMaterialApp(),
   ));
@@ -134,9 +126,9 @@ class LoginPage extends StatelessWidget {
                 key: _formKey,
                 child: Column(children: [
                   Image.asset(
-                    "assets/images/main-logo.jpg",
-                    height: 100,
-                    width: 100,
+                    "assets/images/logo.jpg",
+                    height: 200,
+                    width: 200,
                   ),
                   TextFormField(
                     decoration: InputDecoration(

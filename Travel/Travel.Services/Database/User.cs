@@ -28,7 +28,6 @@ namespace Travel.Services.Database
         public virtual ICollection<Role> Roles { get; set; } = new List<Role>();
         public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
         public virtual ICollection<Agency> Agencies { get; set; } = new List<Agency>();
-        public virtual ICollection<RouteTicket> RouteTickets { get; set; } = new List<RouteTicket>();
 
         [NotMapped]
         public string FullName

@@ -18,10 +18,9 @@ namespace Travel.Services.Database
         public long ToCityId { get; set; }
         public City ToCity { get; set; }
         public string TravelTime { get; set; }
-        public TimeSpan DepartureTime { get; set; }
-        public TimeSpan ArrivalTime { get; set; }
+        public DateTime DepartureTime { get; set; }
+        public DateTime ArrivalTime { get; set; }
         public long AgencyId { get; set; }
         public Agency Agency { get; set; }
-        public virtual ICollection<RouteTicket> RouteTickets { get; set; } = new List<RouteTicket>();
     }
 }
