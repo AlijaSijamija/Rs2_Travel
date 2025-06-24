@@ -109,6 +109,15 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
                           await _routeProvider.update(
                               widget.route!.id!, request);
                         }
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              widget.route == null
+                                  ? 'Route successfully created'
+                                  : 'Route successfully updated',
+                            ),
+                          ),
+                        );
 
                         Navigator.of(context).push(MaterialPageRoute(
                             builder: (context) => const RouteListScreen()));

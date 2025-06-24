@@ -111,7 +111,15 @@ class _OrganizedTripDetailScreenState extends State<OrganizedTripDetailScreen> {
                           await _organizedTripProvider.update(
                               widget.organizedTrip!.id!, request);
                         }
-
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              widget.organizedTrip == null
+                                  ? 'Trip successfully created'
+                                  : 'Trip successfully updated',
+                            ),
+                          ),
+                        );
                         Navigator.of(context).push(MaterialPageRoute(
                             builder: (context) =>
                                 const OrganizedTripListScreen()));

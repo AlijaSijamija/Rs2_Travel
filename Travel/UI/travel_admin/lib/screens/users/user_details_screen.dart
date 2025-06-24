@@ -117,7 +117,15 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                             await _accountProvider.updateUser(
                                 widget.user!.id!, request);
                           }
-
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                widget.user == null
+                                    ? 'User successfully created'
+                                    : 'User successfully updated',
+                              ),
+                            ),
+                          );
                           Navigator.of(context).push(MaterialPageRoute(
                               builder: (context) => const UserListScreen()));
                         } on Exception catch (e) {

@@ -92,6 +92,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               };
               await _accountProvider.updateProfile(
                   currentUser!.nameid!, request);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Profile successfully updated'),
+                ),
+              );
               Navigator.of(context).push(
                   MaterialPageRoute(builder: (context) => HomePageScreen()));
             } on Exception catch (e) {
@@ -123,6 +128,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   'newPassword': newPassword,
                   'confirmPassword': newPassword,
                 },
+              );
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('You have successfully changed your password.'),
+                ),
               );
               Navigator.of(context).push(
                   MaterialPageRoute(builder: (context) => HomePageScreen()));

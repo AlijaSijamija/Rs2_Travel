@@ -88,7 +88,15 @@ class _AgencyDetailScreenState extends State<AgencyDetailScreen> {
                           await _agencyProvider.update(widget.agencyModel!.id!,
                               _formKey.currentState?.value);
                         }
-
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              widget.agencyModel == null
+                                  ? 'Agency successfully created'
+                                  : 'Agency successfully updated',
+                            ),
+                          ),
+                        );
                         Navigator.of(context).push(MaterialPageRoute(
                             builder: (context) => const AgencyListScreen()));
                       } on Exception catch (e) {

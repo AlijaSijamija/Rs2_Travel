@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:travel_mobile/main.dart';
 import 'package:travel_mobile/screens/home/home_screen.dart';
+import 'package:travel_mobile/screens/organized_trip/organized_trip_list_screen.dart';
 import 'package:travel_mobile/screens/user_profile/user_profile_screen.dart';
+import 'package:travel_mobile/utils/util.dart';
 
 class MasterScreenWidget extends StatefulWidget {
   final Widget? child;
@@ -77,19 +80,17 @@ class _MasterScreenWidgetState extends State<MasterScreenWidget> {
                   );
                 },
               ),
-              // ListTile(
-              //   leading: Icon(Icons.volunteer_activism_sharp,
-              //       color: Colors.white), // Add an icon to the ListTile
-              //   title: Text("Volunteering Announcements",
-              //       style: TextStyle(color: Colors.white)),
-              //   onTap: () {
-              //     Navigator.of(context).push(
-              //       MaterialPageRoute(
-              //           builder: (context) =>
-              //               const VolunteeringAnnouncementListScreen()),
-              //     );
-              //   },
-              // ),
+              ListTile(
+                leading: Icon(Icons.trip_origin_sharp,
+                    color: Colors.white), // Add an icon to the ListTile
+                title: Text("Trips", style: TextStyle(color: Colors.white)),
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                        builder: (context) => const OrganizedTripListScreen()),
+                  );
+                },
+              ),
               // ListTile(
               //   leading: Icon(Icons.report_gmailerrorred,
               //       color: Colors.white), // Add an icon to the ListTile
@@ -148,19 +149,19 @@ class _MasterScreenWidgetState extends State<MasterScreenWidget> {
               //     );
               //   },
               // ),
-              // ListTile(
-              //   leading: Icon(Icons.logout,
-              //       color: Colors.white), // Add an icon to the ListTile
-              //   title: Text("Logout", style: TextStyle(color: Colors.white)),
-              //   onTap: () {
-              //     Authorization.token = null;
-              //     Navigator.pushAndRemoveUntil(
-              //       context,
-              //       MaterialPageRoute(builder: (context) => LoginPage()),
-              //       (route) => false,
-              //     );
-              //   },
-              // ),
+              ListTile(
+                leading: Icon(Icons.logout,
+                    color: Colors.white), // Add an icon to the ListTile
+                title: Text("Logout", style: TextStyle(color: Colors.white)),
+                onTap: () {
+                  Authorization.token = null;
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => LoginPage()),
+                    (route) => false,
+                  );
+                },
+              ),
             ],
           ),
         ),

@@ -91,6 +91,11 @@ class _UserRegisterScreenScreenState extends State<UserRegisterScreen> {
                               'userName': formValue['email'],
                             };
                             await _accountProvider.register(request);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Successful registration.'),
+                              ),
+                            );
                             Navigator.of(context).pop();
                           } on Exception catch (e) {
                             showDialog(
@@ -108,7 +113,7 @@ class _UserRegisterScreenScreenState extends State<UserRegisterScreen> {
                           }
                         }
                       },
-                      child: Text("Save")),
+                      child: Text("Register")),
                 )
               ],
             )
