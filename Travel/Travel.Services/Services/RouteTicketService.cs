@@ -46,7 +46,7 @@ namespace Travel.Services.Services
         public List<AgencyProfitReport> GetProfitByAgency(AgencyProfitSearchObject searchObject)
         {
             var query = _context.RouteTickets
-                .Where(rt=>searchObject.Year == rt.CreatedAt.Year)
+                .Where(rt => searchObject.Year == rt.CreatedAt.Year)
                 .GroupBy(rt => new { rt.AgencyId, rt.Agency.Name })
                 .Select(g => new AgencyProfitReport
                 {
@@ -55,7 +55,7 @@ namespace Travel.Services.Services
                     TotalProfit = g.Sum(rt => rt.Price)
                 });
 
-            return  query.ToList();
+            return query.ToList();
         }
 
         public List<RouteProfitReport> GetProfitByRouteForAgency(AgencyProfitSearchObject searchObject)
@@ -75,8 +75,36 @@ namespace Travel.Services.Services
                     TotalProfit = g.Sum(rt => rt.Price)
                 });
 
-            return  query.ToList();
+            return query.ToList();
         }
 
+        public List<PaymentDataPDF> GeneratePaymentData(int year, long? agencyId)
+        {
+            var query = _context.RouteTickets
+                .Where(rt => rt.CreatedAt.Year == year);
+
+            if (agencyId != null)
+            {
+                query = query.Where(rt => rt.AgencyId == agencyId);
+
+                return query
+                    .Select(rt => new PaymentDataPDF
+                    {
+                        Name = rt.Route.FromCity.Name + " - " + rt.Route.ToCity.Name,
+                        Price = rt.Price
+                    })
+                    .ToList();
+            }
+            else
+            {
+                return query
+                    .Select(rt => new PaymentDataPDF
+                    {
+                        Name = rt.Agency.Name,
+                        Price = rt.Price
+                    })
+                    .ToList();
+            }
+        }
     }
 }

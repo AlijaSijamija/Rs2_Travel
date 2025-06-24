@@ -13,5 +13,6 @@ namespace Travel.Services.Interfaces
     {
        List<AgencyProfitReport> GetProfitByAgency(AgencyProfitSearchObject searchObject);
         List<RouteProfitReport> GetProfitByRouteForAgency(AgencyProfitSearchObject searchObject);
+        List<PaymentDataPDF> GeneratePaymentData(int year, long? agencyId);
     }
 }

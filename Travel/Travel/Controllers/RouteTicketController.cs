@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Travel.Models.Filters;
+using Travel.Models.RouteTicket;
 using Travel.Services.Interfaces;
 
 namespace Travel.Controllers
@@ -17,7 +18,7 @@ namespace Travel.Controllers
         [HttpGet("route-profit")]
         public virtual List<Travel.Models.RouteTicket.RouteProfitReport> GetProfitByRoute([FromQuery] AgencyProfitSearchObject searchObject)
         {
-            var result =  (_service as IRouteTicketService).GetProfitByRouteForAgency(searchObject);
+            var result = (_service as IRouteTicketService).GetProfitByRouteForAgency(searchObject);
             return result.ToList();
         }
 
@@ -25,6 +26,13 @@ namespace Travel.Controllers
         public virtual List<Travel.Models.RouteTicket.AgencyProfitReport> GetPaymentReport([FromQuery] AgencyProfitSearchObject searchObject)
         {
             var result = (_service as IRouteTicketService).GetProfitByAgency(searchObject);
+            return result.ToList();
+        }
+
+        [HttpGet("pdf-report")]
+        public virtual  List<PaymentDataPDF> PaymentPdfData([FromQuery] PaymentReportSearchObject request)
+        {
+            var result =  (_service as IRouteTicketService).GeneratePaymentData(request.Year ?? DateTime.Now.Year, request.AgencyId);
             return result.ToList();
         }
     }

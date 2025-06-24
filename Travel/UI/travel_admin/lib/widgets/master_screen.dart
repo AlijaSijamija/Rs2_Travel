@@ -131,8 +131,7 @@ class _MasterScreenWidgetState extends State<MasterScreenWidget> {
               ListTile(
                 leading: Icon(Icons.report,
                     color: Colors.white), // Add an icon to the ListTile
-                title: Text("Annual plan templates",
-                    style: TextStyle(color: Colors.white)),
+                title: Text("Reports", style: TextStyle(color: Colors.white)),
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
