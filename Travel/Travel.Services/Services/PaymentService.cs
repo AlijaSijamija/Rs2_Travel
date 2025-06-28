@@ -1,4 +1,5 @@
-﻿using Stripe;
+﻿using Microsoft.Extensions.Configuration;
+using Stripe;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,11 +13,16 @@ namespace Travel.Services.Services
 {
     public class PaymentService : IPaymentService
     {
+        private readonly IConfiguration _configuration;
+        public PaymentService(IConfiguration configuration)
+        {
+                _configuration = configuration;
+        }
         public async Task<bool> Pay(PaymentTicket model)
         {
             try
             {
-                StripeConfiguration.ApiKey = "sk_test_51PXjj82Lmi8PKb51pFaHhOwalY8Z96iPU1L4q31ZJoyaa0XVuxgnX4W2mI9NOqTvLFvEv3tZJbPeLDLIiV3uBIzv00rh9GXmfs";
+                StripeConfiguration.ApiKey = _configuration["Stripe:SecretKey"];
                 var optionsToken = new TokenCreateOptions
                 {
                     Card = new TokenCardOptions
