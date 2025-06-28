@@ -30,5 +30,6 @@ namespace Travel.Services.Database
 
         public string ContactInfo { get; set; }
         public virtual ICollection<TripService> IncludedServices { get; set; } = new List<TripService>();
+        public virtual ICollection<TripTicket> TripTickets { get; set; } = new List<TripTicket>();
     }
 }

@@ -8,6 +8,7 @@ using Travel.Models.Route;
 using Travel.Models.RouteTicket;
 using Travel.Models.Section;
 using Travel.Models.TripService;
+using Travel.Models.TripTicket;
 
 namespace Travel.Services.MappingProfile
 {
@@ -31,6 +32,8 @@ namespace Travel.Services.MappingProfile
             CreateMap<OrganizedTripRequest, Database.OrganizedTrip>();
             CreateMap<Database.RouteTicket, Travel.Models.RouteTicket.RouteTicket>();
             CreateMap<RouteTicketRequest, Database.RouteTicket>();
+            CreateMap<Database.TripTicket, Travel.Models.TripTicket.TripTicket>();
+            CreateMap<TripTicketRequest, Database.TripTicket>();
         }
     }
 }

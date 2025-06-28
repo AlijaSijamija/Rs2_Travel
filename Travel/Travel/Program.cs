@@ -15,6 +15,8 @@ builder.Services.AddTransient<IRouteService, RouteService>();
 builder.Services.AddTransient<ITripServiceService, TripServiceService>();
 builder.Services.AddTransient<IOrganizedTripService, OrganizedTripService>();
 builder.Services.AddTransient<IRouteTicketService, RouteTicketService>();
+builder.Services.AddTransient<ITripTicketService, TripTicketService>();
+builder.Services.AddTransient<IPaymentService, PaymentService>();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

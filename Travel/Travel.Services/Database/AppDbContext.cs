@@ -17,6 +17,8 @@ namespace Travel.Services.Database
         public virtual DbSet<TripService> TripServices { get; set; }
         public virtual DbSet<OrganizedTrip> OrganizedTrips { get; set; }
         public virtual DbSet<RouteTicket> RouteTickets { get; set; }
+        public virtual DbSet<TripTicket> TripTickets { get; set; }
+
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
 

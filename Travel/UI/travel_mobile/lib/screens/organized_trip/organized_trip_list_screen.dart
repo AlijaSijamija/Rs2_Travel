@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:travel_mobile/model/organized_trip/organized_trip.dart';
 import 'package:travel_mobile/providers/organized_trip_provider.dart';
+import 'package:travel_mobile/screens/organized_trip/organized_trip_details_screen.dart';
 import '../../providers/account_provider.dart';
 import '../../widgets/master_screen.dart';
 
@@ -142,14 +143,44 @@ class _OrganizedTripListScreenState extends State<OrganizedTripListScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      "Price: ${trip.price?.toStringAsFixed(2) ?? '--'} €",
+                      "Price: ${trip.price?.toStringAsFixed(2) ?? '--'} BAM",
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     Text(
-                      "${trip.availableSeats ?? 0} seats left",
-                      style: const TextStyle(color: Colors.green),
+                      (trip.availableSeats ?? 0) == 0
+                          ? "Sold out"
+                          : "${trip.availableSeats} seats left",
+                      style: TextStyle(
+                        color: (trip.availableSeats ?? 0) == 0
+                            ? Colors.grey
+                            : (trip.availableSeats! < 10
+                                ? Colors.red
+                                : Colors.green),
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
+                ),
+                const SizedBox(height: 16),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              OrganizedTripDetailScreen(trip: trip),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(220, 255, 255, 255),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text("Details"),
+                  ),
                 ),
               ],
             ),

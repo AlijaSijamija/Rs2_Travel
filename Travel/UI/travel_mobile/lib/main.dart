@@ -5,7 +5,9 @@ import 'package:travel_mobile/providers/city_provider.dart';
 import 'package:travel_mobile/providers/notification_provider.dart';
 import 'package:travel_mobile/providers/organized_trip_provider.dart';
 import 'package:travel_mobile/providers/route_provider.dart';
+import 'package:travel_mobile/providers/route_ticket.dart';
 import 'package:travel_mobile/providers/section_provider.dart';
+import 'package:travel_mobile/providers/trip_ticket_provider.dart';
 import 'package:travel_mobile/screens/home/home_screen.dart';
 import 'package:travel_mobile/screens/user_register/user_register.dart';
 import 'package:travel_mobile/utils/util.dart';
@@ -18,7 +20,9 @@ void main() {
       ChangeNotifierProvider(create: (_) => CityProvider()),
       ChangeNotifierProvider(create: (_) => AccountProvider()),
       ChangeNotifierProvider(create: (_) => RouteProvider()),
-      ChangeNotifierProvider(create: (_) => OrganizedTripProvider())
+      ChangeNotifierProvider(create: (_) => OrganizedTripProvider()),
+      ChangeNotifierProvider(create: (_) => TripTicketProvider()),
+      ChangeNotifierProvider(create: (_) => RouteTicketProvider())
     ],
     child: const MyMaterialApp(),
   ));

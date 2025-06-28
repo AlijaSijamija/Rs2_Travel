@@ -9,5 +9,6 @@ namespace Travel.Models.Filters
     public class OrganizedTripSearchObject : BaseSearchObject
     {
         public long? AgencyId { get; set; }
+        public bool? Future { get; set; }
     }
 }

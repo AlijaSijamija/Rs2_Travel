@@ -20,5 +20,6 @@ namespace Travel.Services.Database
         public virtual ICollection<Route> Routes { get; set; } = new List<Route>();
         public virtual ICollection<OrganizedTrip> Trips { get; set; } = new List<OrganizedTrip>();
         public virtual ICollection<RouteTicket> RouteTickets { get; set; } = new List<RouteTicket>();
+        public virtual ICollection<TripTicket> TripTickets { get; set; } = new List<TripTicket>();
     }
 }

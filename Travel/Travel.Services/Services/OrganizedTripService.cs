@@ -30,6 +30,11 @@ namespace Travel.Services.Services
                 filteredQuery = filteredQuery.Where(x => x.AgencyId == search.AgencyId);
             }
 
+            if (search.Future.HasValue && search.Future.Value)
+            {
+                filteredQuery = filteredQuery.Where(x => x.StartDate > DateTime.Now);
+            }
+
             return filteredQuery;
         }
 
