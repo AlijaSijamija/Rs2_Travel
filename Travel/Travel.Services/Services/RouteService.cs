@@ -42,5 +42,25 @@ namespace Travel.Services.Services
             query = query.Include("ToCity").Include("FromCity").Include("Agency");
             return base.AddInclude(query, search);
         }
+
+        public void SaveRoute(SaveRoute saveRoute)
+        {
+            var saveRouteDb = new Database.SavedRoutes() { PassengerId = saveRoute.PassengerId, RouteId = saveRoute.RouteId };
+            _context.SavedRoutes.Add(saveRouteDb);
+            _context.SaveChanges();
+        }
+
+        public void RemoveSavedRoute(SaveRoute saveRoute)
+        {
+            var savedRouteDb = _context.SavedRoutes.Where(s => s.PassengerId == saveRoute.PassengerId && s.RouteId == saveRoute.RouteId).FirstOrDefault();
+            _context.SavedRoutes.Remove(savedRouteDb);
+            _context.SaveChanges();
+        }
+
+        public List<Models.Route.Route> GetSavedRoutes(string passengerId)
+        {
+            var savedRoutes = _context.Routes.Include(s=>s.SavedRoutes).Include(s=>s.Agency).Include(s=>s.FromCity).Include(s=>s.ToCity).Where(s => s.SavedRoutes.Any(sr=>sr.PassengerId==passengerId)).ToList();
+            return _mapper.Map<List<Models.Route.Route>>(savedRoutes);
+        }
     }
 }

@@ -39,7 +39,7 @@ namespace Travel.Services.Services
 
         public override IQueryable<Database.RouteTicket> AddInclude(IQueryable<Database.RouteTicket> query, RouteTicketSearchObject? search = null)
         {
-            query = query.Include("Route").Include("Passenger");
+            query = query.Include("Route").Include("Passenger").Include("SavedRoutes");
             return base.AddInclude(query, search);
         }
 

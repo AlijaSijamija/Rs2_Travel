@@ -18,6 +18,7 @@ namespace Travel.Services.Database
         public virtual DbSet<OrganizedTrip> OrganizedTrips { get; set; }
         public virtual DbSet<RouteTicket> RouteTickets { get; set; }
         public virtual DbSet<TripTicket> TripTickets { get; set; }
+        public virtual DbSet<SavedRoutes> SavedRoutes { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
@@ -36,6 +37,7 @@ namespace Travel.Services.Database
             builder.ApplyConfiguration(new TripServiceConfiguration());
             builder.ApplyConfiguration(new OrganizedTripServiceConfiguration());
             builder.ApplyConfiguration(new RouteTicketConfiguration());
+            builder.ApplyConfiguration(new SavedRoutesConfiguration());
             
         }
 

@@ -120,7 +120,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               var formValue = _changePasswordKey.currentState?.value;
               var currentPassword = formValue!['currentPassword'];
               var newPassword = formValue['newPassword'];
-              // Uncomment this line when the backend logic is ready
               await _accountProvider.changePassword(
                 currentUser!.nameid!,
                 {

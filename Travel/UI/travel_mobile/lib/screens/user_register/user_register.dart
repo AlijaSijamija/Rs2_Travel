@@ -61,7 +61,6 @@ class _UserRegisterScreenScreenState extends State<UserRegisterScreen> {
   Widget build(BuildContext context) {
     return MasterScreenWidget(
       child: SingleChildScrollView(
-        // <-- added here
         child: Column(
           children: [
             isLoading ? Container() : _buildForm(),

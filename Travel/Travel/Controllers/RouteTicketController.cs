@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Travel.Models.Filters;
+using Travel.Models.Route;
 using Travel.Models.RouteTicket;
 using Travel.Services.Interfaces;
 
@@ -30,9 +31,9 @@ namespace Travel.Controllers
         }
 
         [HttpGet("pdf-report")]
-        public virtual  List<PaymentDataPDF> PaymentPdfData([FromQuery] PaymentReportSearchObject request)
+        public virtual List<PaymentDataPDF> PaymentPdfData([FromQuery] PaymentReportSearchObject request)
         {
-            var result =  (_service as IRouteTicketService).GeneratePaymentData(request.Year ?? DateTime.Now.Year, request.AgencyId);
+            var result = (_service as IRouteTicketService).GeneratePaymentData(request.Year ?? DateTime.Now.Year, request.AgencyId);
             return result.ToList();
         }
     }

@@ -3,6 +3,8 @@ import 'package:travel_mobile/main.dart';
 import 'package:travel_mobile/screens/booked_trips/booked_trips_screen.dart';
 import 'package:travel_mobile/screens/home/home_screen.dart';
 import 'package:travel_mobile/screens/organized_trip/organized_trip_list_screen.dart';
+import 'package:travel_mobile/screens/routes/routes_list_screen.dart';
+import 'package:travel_mobile/screens/saved_routes/saved_routes_screen.dart';
 import 'package:travel_mobile/screens/user_profile/user_profile_screen.dart';
 import 'package:travel_mobile/utils/util.dart';
 
@@ -82,6 +84,29 @@ class _MasterScreenWidgetState extends State<MasterScreenWidget> {
                 },
               ),
               ListTile(
+                leading: Icon(Icons.bus_alert,
+                    color: Colors.white), // Add an icon to the ListTile
+                title: Text("Routes", style: TextStyle(color: Colors.white)),
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                        builder: (context) => const RoutesSearchScreen()),
+                  );
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.bookmark,
+                    color: Colors.white), // Add an icon to the ListTile
+                title:
+                    Text("Saved routes", style: TextStyle(color: Colors.white)),
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                        builder: (context) => const SavedRoutesScreen()),
+                  );
+                },
+              ),
+              ListTile(
                 leading: Icon(Icons.trip_origin_sharp,
                     color: Colors.white), // Add an icon to the ListTile
                 title: Text("Trips", style: TextStyle(color: Colors.white)),
@@ -104,17 +129,6 @@ class _MasterScreenWidgetState extends State<MasterScreenWidget> {
                   );
                 },
               ),
-              // ListTile(
-              //   leading: Icon(Icons.supervised_user_circle_sharp,
-              //       color: Colors.white), // Add an icon to the ListTile
-              //   title: Text("Users", style: TextStyle(color: Colors.white)),
-              //   onTap: () {
-              //     Navigator.of(context).push(
-              //       MaterialPageRoute(
-              //           builder: (context) => const UserListScreen()),
-              //     );
-              //   },
-              // ),
               // ListTile(
               //   leading: Icon(Icons.video_camera_front,
               //       color: Colors.white), // Add an icon to the ListTile

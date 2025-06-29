@@ -23,5 +23,6 @@ namespace Travel.Services.Database
         public long AgencyId { get; set; }
         public Agency Agency { get; set; }
         public virtual ICollection<RouteTicket> RouteTickets { get; set; } = new List<RouteTicket>();
+        public virtual ICollection<SavedRoutes> SavedRoutes { get; set; } = new List<SavedRoutes>();
     }
 }
