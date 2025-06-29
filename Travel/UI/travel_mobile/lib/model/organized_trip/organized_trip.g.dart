@@ -28,6 +28,9 @@ OrganizedTripModel _$OrganizedTripModelFromJson(Map<String, dynamic> json) =>
           .map((e) => TripServiceModel.fromJson(e as Map<String, dynamic>))
           .toList(),
       json['tripName'] as String,
+      (json['tripTickets'] as List<dynamic>)
+          .map((e) => TripTicketModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
 
 Map<String, dynamic> _$OrganizedTripModelToJson(OrganizedTripModel instance) =>
@@ -44,4 +47,5 @@ Map<String, dynamic> _$OrganizedTripModelToJson(OrganizedTripModel instance) =>
       'contactInfo': instance.contactInfo,
       'tripName': instance.tripName,
       'includedServices': instance.includedServices,
+      'tripTickets': instance.tripTickets,
     };

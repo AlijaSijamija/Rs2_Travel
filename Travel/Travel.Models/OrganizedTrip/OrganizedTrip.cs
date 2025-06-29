@@ -30,5 +30,6 @@ namespace Travel.Models.OrganizedTrip
 
         public string ContactInfo { get; set; }
         public  List<TripService.TripService> IncludedServices { get; set; } 
+        public  List<TripTicket.TripTicket> TripTickets { get; set; } 
     }
 }

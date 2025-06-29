@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Travel.Models.Account;
 using Travel.Models.OrganizedTrip;
+using System.Text.Json.Serialization;
 
 namespace Travel.Models.TripTicket
 {
@@ -15,6 +16,7 @@ namespace Travel.Models.TripTicket
         public UserResponse Passenger { get; set; }
         public double Price { get; set; }
         public long TripId { get; set; }
+        [JsonIgnore]
         public OrganizedTrip.OrganizedTrip Trip { get; set; }
         public long AgencyId { get; set; }
         public Agency.Agency Agency { get; set; }

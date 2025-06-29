@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:travel_mobile/main.dart';
+import 'package:travel_mobile/screens/booked_trips/booked_trips_screen.dart';
 import 'package:travel_mobile/screens/home/home_screen.dart';
 import 'package:travel_mobile/screens/organized_trip/organized_trip_list_screen.dart';
 import 'package:travel_mobile/screens/user_profile/user_profile_screen.dart';
@@ -91,17 +92,18 @@ class _MasterScreenWidgetState extends State<MasterScreenWidget> {
                   );
                 },
               ),
-              // ListTile(
-              //   leading: Icon(Icons.report_gmailerrorred,
-              //       color: Colors.white), // Add an icon to the ListTile
-              //   title: Text("Reports", style: TextStyle(color: Colors.white)),
-              //   onTap: () {
-              //     Navigator.of(context).push(
-              //       MaterialPageRoute(
-              //           builder: (context) => const ReportListScreen()),
-              //     );
-              //   },
-              // ),
+              ListTile(
+                leading: Icon(Icons.book_online_rounded,
+                    color: Colors.white), // Add an icon to the ListTile
+                title:
+                    Text("Booked trips", style: TextStyle(color: Colors.white)),
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                        builder: (context) => const BookedTripsScreen()),
+                  );
+                },
+              ),
               // ListTile(
               //   leading: Icon(Icons.supervised_user_circle_sharp,
               //       color: Colors.white), // Add an icon to the ListTile

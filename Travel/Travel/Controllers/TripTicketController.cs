@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Travel.Models.Filters;
 using Travel.Models.Payment;
 using Travel.Services.Interfaces;
 
@@ -19,6 +20,13 @@ namespace Travel.Controllers
         public virtual async Task<bool> Pay([FromBody] PaymentTicket request)
         {
             var result = await _paymentTicketService.Pay(request);
+            return result;
+        }
+
+        [HttpGet("bookedTrips")]
+        public virtual List<Models.OrganizedTrip.OrganizedTrip> GetBookedTrips([FromQuery] TicketBookedTrip filter)
+        {
+            var result = (_service as ITripTicketService).GetBookedTrips(filter);
             return result;
         }
     }

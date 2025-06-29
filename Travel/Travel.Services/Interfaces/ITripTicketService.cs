@@ -10,5 +10,6 @@ namespace Travel.Services.Interfaces
 {
     public interface ITripTicketService :ICRUDService<Models.TripTicket.TripTicket, BaseSearchObject, TripTicketRequest, TripTicketRequest, long>
     {
+        List<Models.OrganizedTrip.OrganizedTrip> GetBookedTrips(TicketBookedTrip filter);
     }
 }
