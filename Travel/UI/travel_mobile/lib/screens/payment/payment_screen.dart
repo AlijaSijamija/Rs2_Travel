@@ -5,13 +5,21 @@ import 'package:provider/provider.dart';
 import 'package:travel_mobile/model/organized_trip/organized_trip.dart';
 import 'package:travel_mobile/providers/account_provider.dart';
 import 'package:travel_mobile/providers/trip_ticket_provider.dart';
-import 'package:travel_mobile/screens/organized_trip/organized_trip_details_screen.dart';
 import 'package:travel_mobile/screens/organized_trip/organized_trip_list_screen.dart';
 
 class PaymentScreen extends StatefulWidget {
   final OrganizedTripModel? organizedTrip;
+  final List<Map<String, String>> seatPassengerData;
+  final int numberOfPassengers;
+  final double totalPrice;
 
-  const PaymentScreen({Key? key, this.organizedTrip}) : super(key: key);
+  const PaymentScreen({
+    Key? key,
+    this.organizedTrip,
+    required this.seatPassengerData,
+    required this.numberOfPassengers,
+    required this.totalPrice,
+  }) : super(key: key);
 
   @override
   _PaymentScreenState createState() => _PaymentScreenState();
@@ -24,23 +32,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
   String cvvCode = '';
   bool isCvvFocused = false;
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-  int numberOfPeople = 1;
 
-  double get unitPrice => widget.organizedTrip?.price ?? 0;
-  int get maxSeats => widget.organizedTrip?.availableSeats ?? 1;
-  bool get hasDiscount => numberOfPeople >= 5;
-
-  double get totalPriceBeforeDiscount => unitPrice * numberOfPeople;
-
-  double get totalPriceAfterDiscount =>
-      hasDiscount ? totalPriceBeforeDiscount * 0.85 : totalPriceBeforeDiscount;
-
-  int get stripeAmount => totalPriceAfterDiscount.round();
+  int get stripeAmount => widget.totalPrice.round();
 
   bool get isPayButtonEnabled =>
-      numberOfPeople >= 1 &&
-      numberOfPeople <= maxSeats &&
-      totalPriceAfterDiscount > 0;
+      widget.numberOfPassengers > 0 && widget.totalPrice > 0;
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +53,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
               cardHolderName: cardHolderName,
               cvvCode: cvvCode,
               showBackView: isCvvFocused,
-              onCreditCardWidgetChange: (CreditCardBrand creditCardBrand) {},
+              onCreditCardWidgetChange: (_) {},
             ),
             Expanded(
               child: SingleChildScrollView(
@@ -76,7 +72,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         cvvCode: cvvCode,
                       ),
                       const SizedBox(height: 20),
-                      _buildPersonSelector(),
+                      _buildSeatSummary(),
                       const SizedBox(height: 20),
                       _buildPriceSection(),
                       const SizedBox(height: 20),
@@ -109,47 +105,41 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
   }
 
-  Widget _buildPersonSelector() {
+  Widget _buildSeatSummary() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text("Number of People", style: TextStyle(fontSize: 16)),
-        const SizedBox(height: 10),
-        Row(
-          children: [
-            IconButton(
-              onPressed: numberOfPeople > 1
-                  ? () => setState(() => numberOfPeople--)
-                  : null,
-              icon: const Icon(Icons.remove_circle),
+        const Text("Passenger Seats", style: TextStyle(fontSize: 16)),
+        const SizedBox(height: 8),
+        ...widget.seatPassengerData.map((entry) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4.0),
+            child: Row(
+              children: [
+                const Icon(Icons.event_seat,
+                    size: 20, color: Colors.blueAccent),
+                const SizedBox(width: 6),
+                Text(
+                  entry['seatNumber'] ?? '',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(width: 12),
+                const Icon(Icons.person, size: 20, color: Colors.green),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    entry['passengerName'] ?? '',
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                // Optional: If you want a staff icon conditionally,
+                // for example if passenger is staff, add it here.
+                // const SizedBox(width: 8),
+                // Icon(Icons.badge, size: 20, color: Colors.orange),
+              ],
             ),
-            Text(
-              numberOfPeople.toString(),
-              style: const TextStyle(fontSize: 18),
-            ),
-            IconButton(
-              onPressed: () {
-                if (numberOfPeople < maxSeats) {
-                  setState(() => numberOfPeople++);
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                          "You can't select more than $maxSeats people — only that many seats are available."),
-                      backgroundColor: Colors.orange,
-                    ),
-                  );
-                }
-              },
-              icon: const Icon(Icons.add_circle),
-            ),
-          ],
-        ),
-        if (hasDiscount)
-          const Text(
-            "✅ You get a 15% discount for 5 or more people!",
-            style: TextStyle(color: Colors.green, fontWeight: FontWeight.w600),
-          ),
+          );
+        }).toList(),
       ],
     );
   }
@@ -160,27 +150,13 @@ class _PaymentScreenState extends State<PaymentScreen> {
       children: [
         const Text("Total Price", style: TextStyle(fontSize: 16)),
         const SizedBox(height: 8),
-        Row(
-          children: [
-            if (hasDiscount)
-              Text(
-                "${totalPriceBeforeDiscount.toStringAsFixed(2)} €",
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey,
-                  decoration: TextDecoration.lineThrough,
-                ),
-              ),
-            const SizedBox(width: 10),
-            Text(
-              "${totalPriceAfterDiscount.toStringAsFixed(2)} €",
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.blueAccent,
-              ),
-            ),
-          ],
+        Text(
+          "${widget.totalPrice.toStringAsFixed(2)} BAM",
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Colors.blueAccent,
+          ),
         ),
       ],
     );
@@ -199,8 +175,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
   Future<bool> _makePayment() async {
     try {
       List<String> parts = expiryDate.split('/');
-
       var _tripTicketProvider = context.read<TripTicketProvider>();
+
       var request = {
         'cardNumber': cardNumber,
         'month': parts[0],
@@ -208,8 +184,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
         'cvc': cvvCode,
         'cardHolderName': cardHolderName,
         'totalPrice': stripeAmount,
-        'personCount': numberOfPeople,
+        'personCount': widget.numberOfPassengers,
       };
+
       var result = await _tripTicketProvider.pay(request);
       return result;
     } catch (e) {
@@ -221,24 +198,33 @@ class _PaymentScreenState extends State<PaymentScreen> {
     try {
       var _tripTicketProvider = context.read<TripTicketProvider>();
       var currentUser = await context.read<AccountProvider>().getCurrentUser();
+
       await _tripTicketProvider.insert({
         'passengerId': currentUser.nameid,
-        'price': totalPriceAfterDiscount,
+        'price': widget.totalPrice,
         'tripId': widget.organizedTrip!.id,
-        'numberOfPassengers': numberOfPeople,
+        'numberOfPassengers': widget.numberOfPassengers,
+        'seatNumbers': widget.seatPassengerData
+            .map((entry) => {
+                  'seatNumber':
+                      entry['seatNumber'] ?? entry['seat'], // just in case
+                  'passengerName': entry['passengerName'] ?? entry['name'],
+                })
+            .toList(),
       });
 
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (BuildContext context) => AlertDialog(
+        builder: (context) => AlertDialog(
           title: const Text("Success"),
-          content: const Text(
-              "You have successfully purchased a ticket for the trip."),
+          content: const Text("You have successfully purchased a ticket."),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => OrganizedTripListScreen())),
+              onPressed: () => Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                    builder: (context) => OrganizedTripListScreen()),
+              ),
               child: const Text("OK"),
             ),
           ],
@@ -247,7 +233,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     } catch (e) {
       showDialog(
         context: context,
-        builder: (BuildContext context) => AlertDialog(
+        builder: (context) => AlertDialog(
           title: const Text("Error"),
           content: Text(e.toString()),
           actions: [
@@ -264,7 +250,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   void _showPaymentErrorDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (BuildContext context) => AlertDialog(
+      builder: (context) => AlertDialog(
         title: const Text("Payment Error"),
         content: const Text("There was an error processing your payment."),
         actions: [
@@ -280,7 +266,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   void _showValidationErrorDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (BuildContext context) => AlertDialog(
+      builder: (context) => AlertDialog(
         title: const Text("Validation Error"),
         content:
             const Text("Please ensure all fields are filled out correctly."),

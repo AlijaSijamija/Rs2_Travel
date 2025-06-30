@@ -22,6 +22,7 @@ namespace Travel.Models.OrganizedTrip
         public double Price { get; set; }
 
         public int AvailableSeats { get; set; }
+        public int NumberOfSeats { get; set; }
 
         public string Description { get; set; }
 

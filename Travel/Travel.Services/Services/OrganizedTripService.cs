@@ -51,6 +51,7 @@ namespace Travel.Services.Services
                 var includedServices = _context.TripServices.Select(u => u).Where(u => insert.IncludedServicesIds.Contains(u.Id)).ToList();
                 entity.IncludedServices = includedServices;
             }
+            entity.AvailableSeats = insert.NumberOfSeats;
         }
 
         public override async Task BeforeUpdate(Database.OrganizedTrip entity, Models.OrganizedTrip.OrganizedTripRequest update)

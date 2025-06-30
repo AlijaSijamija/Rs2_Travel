@@ -16,13 +16,20 @@ class _BookedTripsScreenState extends State<BookedTripsScreen>
   bool? passed; // null will not be used now, only true or false
   bool isLoading = false;
   late TabController _tabController;
+  String? currentUserId;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(_handleTabChange);
-    _handleTabChange(); // load initially
+    _loadCurrentUserAndTrips();
+  }
+
+  Future<void> _loadCurrentUserAndTrips() async {
+    var currentUser = await context.read<AccountProvider>().getCurrentUser();
+    currentUserId = currentUser.nameid;
+    _handleTabChange(); // initial load trips
   }
 
   Future<void> loadTrips() async {
@@ -30,10 +37,9 @@ class _BookedTripsScreenState extends State<BookedTripsScreen>
       isLoading = true;
     });
 
-    var currentUser = await context.read<AccountProvider>().getCurrentUser();
     var filter = {
-      'passengerId': currentUser.nameid,
-      'passed': passed.toString()
+      'passengerId': currentUserId ?? '',
+      'passed': passed.toString(),
     };
 
     var _tripTicketProvider = context.read<TripTicketProvider>();
@@ -78,87 +84,105 @@ class _BookedTripsScreenState extends State<BookedTripsScreen>
               : ListView.builder(
                   padding: const EdgeInsets.all(16),
                   itemCount: bookedTrips.length,
-                  itemBuilder: (context, index) {
-                    var currentUser =
-                        context.read<AccountProvider>().getCurrentUser();
-                    final trip = bookedTrips[index];
+                  itemBuilder: (context, tripIndex) {
+                    final trip = bookedTrips[tripIndex];
+                    // Filter tickets for current user on this trip
                     final tickets = (trip['tripTickets'] as List<dynamic>)
-                        .where((o) => o['passengerId'] == currentUser.nameid)
+                        .where((o) => o['passengerId'] == currentUserId)
                         .toList();
-                    final ticket = tickets.isNotEmpty ? tickets.first : null;
 
-                    return Container(
-                      margin: const EdgeInsets.symmetric(vertical: 12),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey.shade400),
-                        borderRadius: BorderRadius.circular(12),
-                        color: Colors.grey.shade100,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.2),
-                            blurRadius: 6,
-                            offset: const Offset(0, 3),
-                          )
-                        ],
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            flex: 3,
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "🎫 Trip Ticket #${index + 1}",
-                                    style: const TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "🚌 Trip to ${trip['destination'] ?? 'Unknown'}",
+                          style: const TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        // For each ticket, show a card with details
+                        ...tickets.asMap().entries.map((entry) {
+                          int ticketIndex = entry.key;
+                          var ticket = entry.value;
+                          return Container(
+                            margin: const EdgeInsets.symmetric(vertical: 8),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey.shade400),
+                              borderRadius: BorderRadius.circular(12),
+                              color: Colors.grey.shade100,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withOpacity(0.2),
+                                  blurRadius: 6,
+                                  offset: const Offset(0, 3),
+                                )
+                              ],
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  flex: 3,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "🎫 Ticket #${ticketIndex + 1}",
+                                          style: const TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                            "👤 Passenger: ${ticket['passenger']?['firstName'] ?? ''} ${ticket['passenger']?['lastName'] ?? ''}"),
+                                        Text(
+                                            "🏢 Agency: ${ticket['agency']?['name'] ?? 'Unknown'}"),
+                                        Text(
+                                            "🧍 Passengers: ${ticket['numberOfPassengers'] ?? '-'}"),
+                                        Text(
+                                            "💰 Price: ${ticket['price'] != null ? (ticket['price'] as num).toStringAsFixed(2) : '0.00'} KM"),
+                                      ],
                                     ),
                                   ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                      "✈️ Destination: ${trip?['destination'] ?? 'Unknown'}"),
-                                  Text(
-                                      "👤 Passenger: ${ticket['passenger']?['firstName'] ?? ''} ${ticket['passenger']?['lastName'] ?? ''}"),
-                                  Text(
-                                      "🏢 Agency: ${ticket['agency']?['name'] ?? 'Unknown'}"),
-                                  Text(
-                                      "🧍 Passengers: ${ticket['numberOfPassengers'] ?? '-'}"),
-                                  Text(
-                                      "💰 Price: ${ticket['price']?.toStringAsFixed(2) ?? '0.00'} KM"),
-                                ],
-                              ),
-                            ),
-                          ),
-                          Container(
-                            width: 80,
-                            height: 170,
-                            decoration: const BoxDecoration(
-                              color: Colors.black87,
-                              borderRadius: BorderRadius.only(
-                                topRight: Radius.circular(12),
-                                bottomRight: Radius.circular(12),
-                              ),
-                            ),
-                            child: RotatedBox(
-                              quarterTurns: 1,
-                              child: Center(
-                                child: Text(
-                                  passed == true ? "PAST TRIP" : "UPCOMING",
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 1.5,
-                                    fontSize: 16,
+                                ),
+                                Container(
+                                  width: 80,
+                                  height: 140,
+                                  decoration: const BoxDecoration(
+                                    color: Colors.black87,
+                                    borderRadius: BorderRadius.only(
+                                      topRight: Radius.circular(12),
+                                      bottomRight: Radius.circular(12),
+                                    ),
+                                  ),
+                                  child: RotatedBox(
+                                    quarterTurns: 1,
+                                    child: Center(
+                                      child: Text(
+                                        passed == true
+                                            ? "PAST TRIP"
+                                            : "UPCOMING",
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          letterSpacing: 1.5,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                    ),
                                   ),
                                 ),
-                              ),
+                              ],
                             ),
-                          ),
-                        ],
-                      ),
+                          );
+                        }).toList(),
+                        const SizedBox(height: 24),
+                      ],
                     );
                   },
                 ),

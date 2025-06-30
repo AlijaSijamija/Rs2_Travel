@@ -31,12 +31,14 @@ OrganizedTripModel _$OrganizedTripModelFromJson(Map<String, dynamic> json) =>
       (json['tripTickets'] as List<dynamic>)
           .map((e) => TripTicketModel.fromJson(e as Map<String, dynamic>))
           .toList(),
+      (json['numberOfSeats'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$OrganizedTripModelToJson(OrganizedTripModel instance) =>
     <String, dynamic>{
       'id': instance.id,
       'availableSeats': instance.availableSeats,
+      'numberOfSeats': instance.numberOfSeats,
       'agencyId': instance.agencyId,
       'agency': instance.agency,
       'destination': instance.destination,

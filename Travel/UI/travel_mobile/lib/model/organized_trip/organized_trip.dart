@@ -11,6 +11,7 @@ part 'organized_trip.g.dart';
 class OrganizedTripModel {
   int? id;
   int? availableSeats;
+  int? numberOfSeats;
   int? agencyId;
   AgencyModel? agency;
   String destination;
@@ -35,7 +36,8 @@ class OrganizedTripModel {
       this.price,
       this.includedServices,
       this.tripName,
-      this.tripTickets);
+      this.tripTickets,
+      this.numberOfSeats);
 
   /// A necessary factory constructor for creating a new User instance
   /// from a map. Pass the map to the generated `_$UserFromJson()` constructor.

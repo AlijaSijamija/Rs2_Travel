@@ -17,6 +17,7 @@ namespace Travel.Services.Database
         public OrganizedTrip Trip { get; set; }
         public long AgencyId { get; set; }
         public Agency Agency { get; set; }
-        public  int NumberOfPassengers{ get; set; }
+        public int NumberOfPassengers { get; set; }
+        public virtual ICollection<TicketSeat> TicketSeats { get; set; } = new List<TicketSeat>();
     }
 }

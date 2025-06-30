@@ -46,4 +46,17 @@ class TripTicketProvider extends BaseProvider<TripTicketModel> {
       return [];
     }
   }
+
+  Future<List<dynamic>> getReservedSeats(int tripId) async {
+    var url = "${BaseProvider.baseUrl}TripTicket/reservedSeats/$tripId";
+    var uri = Uri.parse(url);
+    var headers = createAuthorizationHeaders();
+    var response = await http!.get(uri, headers: headers);
+
+    if (isValidResponse(response)) {
+      return jsonDecode(response.body);
+    } else {
+      return [];
+    }
+  }
 }

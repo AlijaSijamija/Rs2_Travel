@@ -29,5 +29,12 @@ namespace Travel.Controllers
             var result = (_service as ITripTicketService).GetBookedTrips(filter);
             return result;
         }
+
+        [HttpGet("reservedSeats/{tripId}")]
+        public virtual List<Models.TicketSeat.TicketSeat> GetReservedSeats([FromRoute]long tripId)
+        {
+            var result = (_service as ITripTicketService).GetReservedSeats(tripId);
+            return result;
+        }
     }
 }

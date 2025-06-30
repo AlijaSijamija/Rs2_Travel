@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Travel.Services.Database;
 
@@ -11,9 +12,11 @@ using Travel.Services.Database;
 namespace Travel.Services.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250630073757_TicketSeat")]
+    partial class TicketSeat
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -230,9 +233,6 @@ namespace Travel.Services.Migrations
 
                     b.Property<string>("LastModifiedBy")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("NumberOfSeats")
-                        .HasColumnType("int");
 
                     b.Property<double>("Price")
                         .HasColumnType("float");
@@ -491,6 +491,7 @@ namespace Travel.Services.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<long?>("RouteTicketId")
+                        .IsRequired()
                         .HasColumnType("bigint");
 
                     b.Property<string>("SeatNumber")
@@ -498,6 +499,7 @@ namespace Travel.Services.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<long?>("TripTicketId")
+                        .IsRequired()
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
@@ -819,12 +821,14 @@ namespace Travel.Services.Migrations
                     b.HasOne("Travel.Services.Database.RouteTicket", "RouteTicket")
                         .WithMany("TicketSeats")
                         .HasForeignKey("RouteTicketId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
 
                     b.HasOne("Travel.Services.Database.TripTicket", "TripTicket")
                         .WithMany("TicketSeats")
                         .HasForeignKey("TripTicketId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
 
                     b.Navigation("RouteTicket");
 

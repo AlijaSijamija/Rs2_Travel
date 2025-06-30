@@ -9,6 +9,7 @@ part 'organized_trip.g.dart';
 class OrganizedTripModel {
   int? id;
   int? availableSeats;
+  int? numberOfSeats;
   int? agencyId;
   AgencyModel? agency;
   String destination;

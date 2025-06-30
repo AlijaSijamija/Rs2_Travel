@@ -37,7 +37,7 @@ class _OrganizedTripDetailScreenState extends State<OrganizedTripDetailScreen> {
     // TODO: implement initState
     super.initState();
     _initialValue = {
-      'availableSeats': widget.organizedTrip?.availableSeats.toString(),
+      'numberOfSeats': widget.organizedTrip?.numberOfSeats.toString(),
       'agencyId': widget.organizedTrip?.agencyId.toString(),
       'description': widget.organizedTrip?.description.toString(),
       'destination': widget.organizedTrip?.destination.toString(),
@@ -94,7 +94,7 @@ class _OrganizedTripDetailScreenState extends State<OrganizedTripDetailScreen> {
                         _formKey.currentState?.saveAndValidate();
                         var formValue = _formKey.currentState?.value;
                         var request = {
-                          'availableSeats': formValue!['availableSeats'],
+                          'numberOfSeats': formValue!['numberOfSeats'],
                           'agencyId': int.tryParse(formValue['agencyId']),
                           'description': formValue['description'],
                           'destination': formValue['destination'],
@@ -392,7 +392,7 @@ class _OrganizedTripDetailScreenState extends State<OrganizedTripDetailScreen> {
                                 labelText: "Number of seats",
                                 hintText: "Enter a number between 1 and 200",
                               ),
-                              name: "availableSeats",
+                              name: "numberOfSeats",
                               validator: FormBuilderValidators.compose([
                                 FormBuilderValidators.required(
                                   errorText: 'Number of seats is required',

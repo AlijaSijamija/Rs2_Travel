@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:travel_mobile/screens/payment/payment_screen.dart';
+import 'package:travel_mobile/screens/seat_selection/seat_selection_screen.dart';
 import '../../model/organized_trip/organized_trip.dart';
 
 class OrganizedTripDetailScreen extends StatelessWidget {
@@ -188,7 +189,9 @@ class OrganizedTripDetailScreen extends StatelessWidget {
                               Navigator.of(context).push(
                                 MaterialPageRoute(
                                   builder: (context) =>
-                                      PaymentScreen(organizedTrip: trip),
+                                      PassengerSeatSelectionView(
+                                    organizedTrip: trip,
+                                  ),
                                 ),
                               );
                             },
