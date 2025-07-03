@@ -10,5 +10,7 @@ namespace Travel.Models.Filters
     {
         public long? FromCityId { get; set; }
         public long? ToCityId { get; set; }
+        public DateTime? ValidFrom { get; set; }
+        public DateTime? ValidTo { get; set; }
     }
 }

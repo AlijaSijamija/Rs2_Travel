@@ -17,7 +17,11 @@ class OrganizedTripListScreen extends StatefulWidget {
 class _OrganizedTripListScreenState extends State<OrganizedTripListScreen> {
   late OrganizedTripProvider _organizedTripProvider;
   List<OrganizedTripModel>? organizedTrips;
+  List<OrganizedTripModel>? filteredTrips;
   late AccountProvider _accountProvider;
+
+  String _searchQuery = '';
+  String _sortOrder = 'Price: Low to High';
 
   final Map<String, IconData> serviceIcons = {
     'Accommodation': Icons.hotel,
@@ -40,10 +44,32 @@ class _OrganizedTripListScreenState extends State<OrganizedTripListScreen> {
       var organizedTripsData = await _organizedTripProvider.get();
       setState(() {
         organizedTrips = organizedTripsData.result;
+        filteredTrips = List.from(organizedTrips ?? []);
+        _applyFilterAndSort();
       });
     } catch (e) {
       print("Error loading data: $e");
     }
+  }
+
+  void _applyFilterAndSort() {
+    if (organizedTrips == null) return;
+
+    // Filter by trip name
+    filteredTrips = organizedTrips!
+        .where((trip) =>
+            trip.tripName != null &&
+            trip.tripName!.toLowerCase().contains(_searchQuery.toLowerCase()))
+        .toList();
+
+    // Sort
+    if (_sortOrder == 'Price: Low to High') {
+      filteredTrips!.sort((a, b) => (a.price ?? 0).compareTo(b.price ?? 0));
+    } else if (_sortOrder == 'Price: High to Low') {
+      filteredTrips!.sort((a, b) => (b.price ?? 0).compareTo(a.price ?? 0));
+    }
+
+    setState(() {});
   }
 
   @override
@@ -55,7 +81,7 @@ class _OrganizedTripListScreenState extends State<OrganizedTripListScreen> {
           padding: const EdgeInsets.all(12),
           child: Column(
             children: [
-              _buildSearch(),
+              _buildSearchAndSort(),
               const SizedBox(height: 10),
               Expanded(child: _buildTripList()),
             ],
@@ -65,20 +91,55 @@ class _OrganizedTripListScreenState extends State<OrganizedTripListScreen> {
     );
   }
 
-  Widget _buildSearch() {
-    return const Row(
+  Widget _buildSearchAndSort() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(child: Text("Search bar or filters can go here")),
+        TextField(
+          decoration: const InputDecoration(labelText: "Search by trip name"),
+          onChanged: (value) {
+            setState(() => _searchQuery = value);
+            _applyFilterAndSort();
+          },
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          width: 200, // optional: to keep dropdown width reasonable
+          child: DropdownButtonFormField<String>(
+            value: _sortOrder,
+            decoration: const InputDecoration(
+              labelText: 'Sort by',
+              border: OutlineInputBorder(),
+              isDense: true,
+            ),
+            items: const [
+              DropdownMenuItem(
+                value: 'Price: Low to High',
+                child: Text('Price: Low to High'),
+              ),
+              DropdownMenuItem(
+                value: 'Price: High to Low',
+                child: Text('Price: High to Low'),
+              ),
+            ],
+            onChanged: (value) {
+              if (value != null) {
+                _sortOrder = value;
+                _applyFilterAndSort();
+              }
+            },
+          ),
+        ),
       ],
     );
   }
 
   Widget _buildTripList() {
-    if (organizedTrips == null) {
+    if (filteredTrips == null) {
       return const Center(child: CircularProgressIndicator());
     }
 
-    if (organizedTrips!.isEmpty) {
+    if (filteredTrips!.isEmpty) {
       return const Center(
         child: Text(
           'No organized trips found.',
@@ -88,10 +149,10 @@ class _OrganizedTripListScreenState extends State<OrganizedTripListScreen> {
     }
 
     return ListView.separated(
-      itemCount: organizedTrips!.length,
+      itemCount: filteredTrips!.length,
       separatorBuilder: (_, __) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
-        final trip = organizedTrips![index];
+        final trip = filteredTrips![index];
         return Card(
           elevation: 6,
           shape:

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:travel_mobile/providers/account_provider.dart';
 import 'package:travel_mobile/providers/trip_ticket_provider.dart';
+import 'package:travel_mobile/widgets/master_screen.dart';
 
 class BookedTripsScreen extends StatefulWidget {
   const BookedTripsScreen({super.key});
@@ -12,11 +13,13 @@ class BookedTripsScreen extends StatefulWidget {
 
 class _BookedTripsScreenState extends State<BookedTripsScreen>
     with SingleTickerProviderStateMixin {
-  List<dynamic> bookedTrips = [];
-  bool? passed; // null will not be used now, only true or false
+  List<dynamic> allBookedTrips = [];
+  List<dynamic> filteredTrips = [];
+  bool? passed; // false = upcoming, true = passed
   bool isLoading = false;
   late TabController _tabController;
   String? currentUserId;
+  String tripNameFilter = '';
 
   @override
   void initState() {
@@ -29,7 +32,7 @@ class _BookedTripsScreenState extends State<BookedTripsScreen>
   Future<void> _loadCurrentUserAndTrips() async {
     var currentUser = await context.read<AccountProvider>().getCurrentUser();
     currentUserId = currentUser.nameid;
-    _handleTabChange(); // initial load trips
+    _handleTabChange(); // initial load
   }
 
   Future<void> loadTrips() async {
@@ -42,18 +45,37 @@ class _BookedTripsScreenState extends State<BookedTripsScreen>
       'passed': passed.toString(),
     };
 
-    var _tripTicketProvider = context.read<TripTicketProvider>();
-    var trips = await _tripTicketProvider.getBookedTrips(filter: filter);
+    var provider = context.read<TripTicketProvider>();
+    var trips = await provider.getBookedTrips(filter: filter);
+
     setState(() {
-      bookedTrips = trips;
+      allBookedTrips = trips;
       isLoading = false;
+    });
+
+    _applyTripNameFilter();
+  }
+
+  void _applyTripNameFilter() {
+    final query = tripNameFilter.toLowerCase();
+    final filtered = tripNameFilter.isEmpty
+        ? allBookedTrips
+        : allBookedTrips
+            .where((trip) => (trip['destination'] ?? '')
+                .toString()
+                .toLowerCase()
+                .contains(query))
+            .toList();
+
+    setState(() {
+      filteredTrips = filtered;
     });
   }
 
   void _handleTabChange() {
     if (_tabController.indexIsChanging) return;
     setState(() {
-      passed = _tabController.index == 1; // false for Upcoming, true for Passed
+      passed = _tabController.index == 1;
     });
     loadTrips();
   }
@@ -66,126 +88,162 @@ class _BookedTripsScreenState extends State<BookedTripsScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("My Booked Trips"),
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: const [
-            Tab(text: "Upcoming"),
-            Tab(text: "Passed"),
-          ],
-        ),
-      ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : bookedTrips.isEmpty
-              ? const Center(child: Text("No trips found."))
-              : ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: bookedTrips.length,
-                  itemBuilder: (context, tripIndex) {
-                    final trip = bookedTrips[tripIndex];
-                    // Filter tickets for current user on this trip
-                    final tickets = (trip['tripTickets'] as List<dynamic>)
-                        .where((o) => o['passengerId'] == currentUserId)
-                        .toList();
-
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "🚌 Trip to ${trip['destination'] ?? 'Unknown'}",
-                          style: const TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                          ),
+    return MasterScreenWidget(
+      title: "My Booked Trips",
+      showBackButton: false, // set true if needed
+      child: Column(
+        children: [
+          // Add TabBar here
+          TabBar(
+            controller: _tabController,
+            tabs: const [
+              Tab(text: "Upcoming"),
+              Tab(text: "Passed"),
+            ],
+          ),
+          Expanded(
+            child: isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: TextField(
+                          decoration: const InputDecoration(
+                              labelText: "Search by destination"),
+                          onChanged: (value) {
+                            setState(() => tripNameFilter = value);
+                            _applyTripNameFilter();
+                          },
                         ),
-                        const SizedBox(height: 12),
-                        // For each ticket, show a card with details
-                        ...tickets.asMap().entries.map((entry) {
-                          int ticketIndex = entry.key;
-                          var ticket = entry.value;
-                          return Container(
-                            margin: const EdgeInsets.symmetric(vertical: 8),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey.shade400),
-                              borderRadius: BorderRadius.circular(12),
-                              color: Colors.grey.shade100,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.grey.withOpacity(0.2),
-                                  blurRadius: 6,
-                                  offset: const Offset(0, 3),
-                                )
-                              ],
-                            ),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  flex: 3,
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(16.0),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          "🎫 Ticket #${ticketIndex + 1}",
-                                          style: const TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 8),
-                                        Text(
-                                            "👤 Passenger: ${ticket['passenger']?['firstName'] ?? ''} ${ticket['passenger']?['lastName'] ?? ''}"),
-                                        Text(
-                                            "🏢 Agency: ${ticket['agency']?['name'] ?? 'Unknown'}"),
-                                        Text(
-                                            "🧍 Passengers: ${ticket['numberOfPassengers'] ?? '-'}"),
-                                        Text(
-                                            "💰 Price: ${ticket['price'] != null ? (ticket['price'] as num).toStringAsFixed(2) : '0.00'} KM"),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                Container(
-                                  width: 80,
-                                  height: 140,
-                                  decoration: const BoxDecoration(
-                                    color: Colors.black87,
-                                    borderRadius: BorderRadius.only(
-                                      topRight: Radius.circular(12),
-                                      bottomRight: Radius.circular(12),
-                                    ),
-                                  ),
-                                  child: RotatedBox(
-                                    quarterTurns: 1,
-                                    child: Center(
-                                      child: Text(
-                                        passed == true
-                                            ? "PAST TRIP"
-                                            : "UPCOMING",
+                      ),
+                      Expanded(
+                        child: filteredTrips.isEmpty
+                            ? const Center(child: Text("No trips found."))
+                            : ListView.builder(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 16),
+                                itemCount: filteredTrips.length,
+                                itemBuilder: (context, tripIndex) {
+                                  final trip = filteredTrips[tripIndex];
+                                  final tickets =
+                                      (trip['tripTickets'] as List<dynamic>)
+                                          .where((o) =>
+                                              o['passengerId'] == currentUserId)
+                                          .toList();
+
+                                  return Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "🚌 Trip to ${trip['destination'] ?? 'Unknown'}",
                                         style: const TextStyle(
-                                          color: Colors.white,
+                                          fontSize: 22,
                                           fontWeight: FontWeight.bold,
-                                          letterSpacing: 1.5,
-                                          fontSize: 16,
                                         ),
                                       ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        }).toList(),
-                        const SizedBox(height: 24),
-                      ],
-                    );
-                  },
-                ),
+                                      const SizedBox(height: 12),
+                                      ...tickets.asMap().entries.map((entry) {
+                                        int ticketIndex = entry.key;
+                                        var ticket = entry.value;
+                                        return Container(
+                                          margin: const EdgeInsets.symmetric(
+                                              vertical: 8),
+                                          decoration: BoxDecoration(
+                                            border: Border.all(
+                                                color: Colors.grey.shade400),
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                            color: Colors.grey.shade100,
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.grey
+                                                    .withOpacity(0.2),
+                                                blurRadius: 6,
+                                                offset: const Offset(0, 3),
+                                              )
+                                            ],
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              Expanded(
+                                                flex: 3,
+                                                child: Padding(
+                                                  padding: const EdgeInsets.all(
+                                                      16.0),
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Text(
+                                                        "🎫 Ticket #${ticketIndex + 1}",
+                                                        style: const TextStyle(
+                                                          fontSize: 18,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(height: 8),
+                                                      Text(
+                                                          "👤 Passenger: ${ticket['passenger']?['firstName'] ?? ''} ${ticket['passenger']?['lastName'] ?? ''}"),
+                                                      Text(
+                                                          "🏢 Agency: ${ticket['agency']?['name'] ?? 'Unknown'}"),
+                                                      Text(
+                                                          "🧍 Passengers: ${ticket['numberOfPassengers'] ?? '-'}"),
+                                                      Text(
+                                                          "💰 Price: ${ticket['price'] != null ? (ticket['price'] as num).toStringAsFixed(2) : '0.00'} KM"),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                              Container(
+                                                width: 80,
+                                                height: 140,
+                                                decoration: const BoxDecoration(
+                                                  color: Colors.black87,
+                                                  borderRadius:
+                                                      BorderRadius.only(
+                                                    topRight:
+                                                        Radius.circular(12),
+                                                    bottomRight:
+                                                        Radius.circular(12),
+                                                  ),
+                                                ),
+                                                child: RotatedBox(
+                                                  quarterTurns: 1,
+                                                  child: Center(
+                                                    child: Text(
+                                                      passed == true
+                                                          ? "PAST TRIP"
+                                                          : "UPCOMING",
+                                                      style: const TextStyle(
+                                                        color: Colors.white,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        letterSpacing: 1.5,
+                                                        fontSize: 16,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      }).toList(),
+                                      const SizedBox(height: 24),
+                                    ],
+                                  );
+                                },
+                              ),
+                      ),
+                    ],
+                  ),
+          ),
+        ],
+      ),
     );
   }
 }

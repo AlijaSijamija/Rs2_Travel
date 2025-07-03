@@ -36,5 +36,24 @@ namespace Travel.Services.Services
             query = query.Include("Section").Include("Admin");
             return base.AddInclude(query, search);
         }
+
+        public void MarkNotificationAsRead(Models.Notification.ReadNotification readNotification)
+        {
+
+            var readNotificationDb = new Database.ReadNotification()
+            {
+                PassengerId = readNotification.PassengerId,
+                NotificationId = readNotification.NotificationId,
+            };
+
+            _context.ReadNotifications.Add(readNotificationDb);
+            _context.SaveChanges();
+        }
+
+        public List<Models.Notification.Notification> GetReadNotification(string passengerId)
+        {
+            var readNotifications = _context.ReadNotifications.Include(r => r.Notification).Where(r => r.PassengerId == passengerId).Select(s => s.Notification).ToList();
+            return _mapper.Map<List<Models.Notification.Notification>>(readNotifications);
+        }
     }
 }

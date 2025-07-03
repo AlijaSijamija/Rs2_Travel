@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:travel_mobile/main.dart';
+import 'package:travel_mobile/screens/booked_routes/booked_routes_screen.dart';
 import 'package:travel_mobile/screens/booked_trips/booked_trips_screen.dart';
 import 'package:travel_mobile/screens/home/home_screen.dart';
 import 'package:travel_mobile/screens/organized_trip/organized_trip_list_screen.dart';
@@ -103,6 +104,18 @@ class _MasterScreenWidgetState extends State<MasterScreenWidget> {
                   Navigator.of(context).push(
                     MaterialPageRoute(
                         builder: (context) => const SavedRoutesScreen()),
+                  );
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.airplane_ticket,
+                    color: Colors.white), // Add an icon to the ListTile
+                title: Text("Route tickets",
+                    style: TextStyle(color: Colors.white)),
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                        builder: (context) => const BookedRoutesScreen()),
                   );
                 },
               ),

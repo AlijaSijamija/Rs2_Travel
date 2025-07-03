@@ -20,10 +20,15 @@ namespace Travel.Services.Services
 
         }
 
+        public override async Task BeforeInsert(Database.Route entity, Models.Route.RouteRequest insert)
+        {
+            entity.AvailableSeats = insert.NumberOfSeats;
+        }
+
         public override IQueryable<Database.Route> AddFilter(IQueryable<Database.Route> query, RouteSearchObject? search = null)
         {
             var filteredQuery = base.AddFilter(query, search);
-
+            var test= filteredQuery.ToList();
             if (search.FromCityId != null)
             {
                 filteredQuery = filteredQuery.Where(x => x.FromCityId == search.FromCityId);
@@ -34,6 +39,17 @@ namespace Travel.Services.Services
                 filteredQuery = filteredQuery.Where(x => x.ToCityId == search.ToCityId);
             }
 
+            if (search.ValidFrom.HasValue)
+            {
+                filteredQuery = filteredQuery.Where(x => x.ValidFrom <= search.ValidFrom.Value);
+            }
+
+            if (search.ValidTo.HasValue)
+            {
+                filteredQuery = filteredQuery.Where(x => x.ValidTo >= search.ValidTo.Value);
+            }
+
+             test = filteredQuery.ToList();
             return filteredQuery;
         }
 

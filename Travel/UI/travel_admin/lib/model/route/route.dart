@@ -21,6 +21,8 @@ class RouteModel {
   String? arrivalTime;
   int? agencyId;
   AgencyModel? agency;
+  DateTime? validFrom;
+  DateTime? validTo;
   RouteModel(
       this.id,
       this.numberOfSeats,
@@ -35,7 +37,9 @@ class RouteModel {
       this.departureTime,
       this.arrivalTime,
       this.agency,
-      this.agencyId);
+      this.agencyId,
+      this.validFrom,
+      this.validTo);
 
   /// A necessary factory constructor for creating a new User instance
   /// from a map. Pass the map to the generated `_$UserFromJson()` constructor.

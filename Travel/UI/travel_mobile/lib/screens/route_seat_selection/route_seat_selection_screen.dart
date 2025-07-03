@@ -1,41 +1,59 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:travel_mobile/model/organized_trip/organized_trip.dart';
+import 'package:travel_mobile/model/route/route.dart';
+import 'package:travel_mobile/providers/route_ticket.dart';
 import 'package:travel_mobile/providers/trip_ticket_provider.dart';
-import 'package:travel_mobile/screens/payment/payment_screen.dart';
+import 'package:travel_mobile/screens/payment_route_ticket/payment_route_ticket_screen.dart';
 
-class PassengerSeatSelectionView extends StatefulWidget {
-  final OrganizedTripModel? organizedTrip;
-
-  const PassengerSeatSelectionView({super.key, required this.organizedTrip});
+class RouteSeatSelectionView extends StatefulWidget {
+  final RouteModel? route;
+  final bool oneWayOnly;
+  final bool showDateInfo;
+  final String validFrom;
+  final String? validTo;
+  const RouteSeatSelectionView(
+      {super.key,
+      required this.route,
+      required this.oneWayOnly,
+      this.showDateInfo = true,
+      this.validFrom = "",
+      this.validTo = ""});
 
   @override
-  State<PassengerSeatSelectionView> createState() =>
-      _PassengerSeatSelectionViewState();
+  State<RouteSeatSelectionView> createState() => _RouteSeatSelectionViewState();
 }
 
-class _PassengerSeatSelectionViewState
-    extends State<PassengerSeatSelectionView> {
-  int passengerCount = 1;
-  double seatPrice = 0;
+class _RouteSeatSelectionViewState extends State<RouteSeatSelectionView> {
+  int adultCount = 1;
+  int childCount = 0;
+
   Map<String, String> selectedSeats = {};
   List<String> reservedSeats = [];
 
-  int get discount => passengerCount >= 5 ? 20 : 0;
+  int get totalPassengers => adultCount + childCount;
 
-  double get totalPrice => passengerCount * seatPrice * (1 - discount / 100);
+  double get totalPrice {
+    final baseAdultPrice = widget.route?.adultPrice ?? 0;
+    final baseChildPrice = widget.route?.childPrice ?? 0;
+
+    final adultPrice =
+        widget.oneWayOnly ? baseAdultPrice * 0.7 : baseAdultPrice;
+    final childPrice =
+        widget.oneWayOnly ? baseChildPrice * 0.7 : baseChildPrice;
+
+    return adultCount * adultPrice + childCount * childPrice;
+  }
 
   @override
   void initState() {
     super.initState();
     fetchReservedSeats();
-    seatPrice = widget.organizedTrip?.price ?? 0;
   }
 
   Future<void> fetchReservedSeats() async {
-    final provider = Provider.of<TripTicketProvider>(context, listen: false);
-    final result =
-        await provider.getReservedSeats(widget.organizedTrip?.id ?? 0);
+    final provider = Provider.of<RouteTicketProvider>(context, listen: false);
+    final result = await provider.getReservedSeats(widget.route?.id ?? 0);
 
     setState(() {
       reservedSeats =
@@ -45,16 +63,12 @@ class _PassengerSeatSelectionViewState
 
   List<String> generateSeatLabels() {
     List<String> labels = [];
-
-    int seatCount = widget.organizedTrip?.numberOfSeats ?? 0;
-
+    int seatCount = widget.route?.numberOfSeats ?? 0;
     for (int i = 0; i < seatCount; i++) {
-      int seatNumber = i + 1; // from 1 to seatCount
-      // Assign a row letter every 4 seats
+      int seatNumber = i + 1;
       String rowLetter = String.fromCharCode(65 + (i ~/ 4));
       labels.add('$seatNumber$rowLetter');
     }
-
     return labels;
   }
 
@@ -64,7 +78,7 @@ class _PassengerSeatSelectionViewState
         selectedSeats.remove(seat);
       });
     } else {
-      if (selectedSeats.length < passengerCount) {
+      if (selectedSeats.length < totalPassengers) {
         final name = await showNameDialog(seat);
         if (name != null && name.trim().isNotEmpty) {
           setState(() {
@@ -83,9 +97,7 @@ class _PassengerSeatSelectionViewState
         title: Text('Insert passenger name $seat'),
         content: TextField(
           controller: controller,
-          decoration: const InputDecoration(
-            labelText: 'First and last name',
-          ),
+          decoration: const InputDecoration(labelText: 'First and last name'),
         ),
         actions: [
           TextButton(
@@ -93,12 +105,20 @@ class _PassengerSeatSelectionViewState
             child: const Text('Cancel'),
           ),
           ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context, controller.text);
-            },
+            onPressed: () => Navigator.pop(context, controller.text),
             child: const Text('Confirm'),
           ),
         ],
+      ),
+    );
+  }
+
+  void showLimitWarning() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Cannot add more passengers than available seats.'),
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 2),
       ),
     );
   }
@@ -126,6 +146,8 @@ class _PassengerSeatSelectionViewState
   @override
   Widget build(BuildContext context) {
     final seats = generateSeatLabels();
+    final availableSeats = widget.route?.availableSeats ?? 0;
+    final dateFormat = DateFormat('dd.MM.yyyy');
 
     return Scaffold(
       appBar: AppBar(title: const Text("Selection of passengers and seats")),
@@ -133,93 +155,78 @@ class _PassengerSeatSelectionViewState
         padding: const EdgeInsets.all(12.0),
         child: Column(
           children: [
-            Row(
-              children: [
-                const Text("Passenger count: "),
-                IconButton(
-                  icon: const Icon(Icons.remove),
-                  onPressed: passengerCount > 1
-                      ? () {
-                          setState(() {
-                            passengerCount--;
-                            if (selectedSeats.length > passengerCount) {
-                              selectedSeats.removeWhere((key, _) =>
-                                  selectedSeats.keys.toList().indexOf(key) >=
-                                  passengerCount);
-                            }
-                          });
-                        }
-                      : null,
+            if (widget.route != null) ...[
+              Text(
+                'Route: ${widget.route!.fromCity?.name ?? "-"} → ${widget.route!.toCity?.name ?? "-"}',
+                style:
+                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              if (widget.showDateInfo) ...[
+                const SizedBox(height: 4),
+                Text(
+                  'Departure time: ${widget.validFrom != null ? widget.validFrom : "-"}',
+                  style: const TextStyle(fontSize: 14),
                 ),
-                Text('$passengerCount'),
-                IconButton(
-                  icon: const Icon(Icons.add),
-                  onPressed: () {
-                    final availableSeats =
-                        widget.organizedTrip?.availableSeats ?? 0;
-                    if (passengerCount < availableSeats) {
-                      setState(() => passengerCount++);
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                              'You cannot add more passengers than available seats.'),
-                          backgroundColor: Colors.red,
-                          duration: const Duration(seconds: 2),
-                        ),
-                      );
-                    }
-                  },
+                Text(
+                  'Return Date: ${widget.validTo != null ? widget.validTo : "One way"}',
+                  style: const TextStyle(fontSize: 14),
                 ),
-                const Spacer(),
               ],
-            ),
-
-// Add this below the Row
-            if (discount > 0)
-              Padding(
-                padding: const EdgeInsets.only(top: 6, right: 8),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
+              const SizedBox(height: 16),
+            ],
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      "Discount: $discount%",
-                      style: const TextStyle(
-                          color: Colors.green, fontWeight: FontWeight.bold),
+                    Row(
+                      children: [
+                        const Text("Adults: "),
+                        IconButton(
+                          icon: const Icon(Icons.remove),
+                          onPressed: adultCount > 0
+                              ? () => setState(() => adultCount--)
+                              : null,
+                        ),
+                        Text('$adultCount'),
+                        IconButton(
+                          icon: const Icon(Icons.add),
+                          onPressed: totalPassengers < availableSeats
+                              ? () => setState(() => adultCount++)
+                              : showLimitWarning,
+                        ),
+                      ],
                     ),
                     Row(
-                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(
-                          (passengerCount * seatPrice).toStringAsFixed(2) +
-                              " BAM",
-                          style: const TextStyle(
-                            decoration: TextDecoration.lineThrough,
-                            color: Colors.grey,
-                          ),
+                        const Text("Children: "),
+                        IconButton(
+                          icon: const Icon(Icons.remove),
+                          onPressed: childCount > 0
+                              ? () => setState(() => childCount--)
+                              : null,
                         ),
-                        const SizedBox(width: 6),
-                        Text(
-                          totalPrice.toStringAsFixed(2) + " BAM",
-                          style: const TextStyle(
-                            color: Colors.green,
-                            fontWeight: FontWeight.bold,
-                          ),
+                        Text('$childCount'),
+                        IconButton(
+                          icon: const Icon(Icons.add),
+                          onPressed: totalPassengers < availableSeats
+                              ? () => setState(() => childCount++)
+                              : showLimitWarning,
                         ),
                       ],
                     ),
                   ],
                 ),
-              )
-            else
-              Padding(
-                padding: const EdgeInsets.only(top: 6, right: 8),
-                child: Align(
-                  alignment: Alignment.centerRight,
-                  child: Text("Price: ${totalPrice.toStringAsFixed(2)} BAM"),
+                const Spacer(),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text("Total: ${totalPrice.toStringAsFixed(2)} BAM"),
+                  ],
                 ),
-              ),
-
+              ],
+            ),
             const SizedBox(height: 20),
             const Text("Select seat"),
             const SizedBox(height: 10),
@@ -233,7 +240,6 @@ class _PassengerSeatSelectionViewState
                   final isReserved = reservedSeats.contains(seat);
                   final passengerName = selectedSeats[seat] ?? '';
 
-                  // Icon based on seat status
                   Widget seatIcon;
                   if (isReserved) {
                     seatIcon = Icon(Icons.event_seat,
@@ -248,14 +254,12 @@ class _PassengerSeatSelectionViewState
 
                   return GestureDetector(
                     onTap: () async {
-                      if (isReserved) return; // no action on reserved seats
-
+                      if (isReserved) return;
                       if (!isSelected &&
-                          selectedSeats.length >= passengerCount) {
+                          selectedSeats.length >= totalPassengers) {
                         _showAddPassengerMessage();
                         return;
                       }
-
                       await toggleSeat(seat);
                     },
                     child: Container(
@@ -313,7 +317,7 @@ class _PassengerSeatSelectionViewState
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed:
-                  selectedSeats.length == passengerCount && allNamesEntered()
+                  selectedSeats.length == totalPassengers && allNamesEntered()
                       ? () {
                           final seatPassengerList = selectedSeats.entries
                               .map((e) => {
@@ -325,10 +329,11 @@ class _PassengerSeatSelectionViewState
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => PaymentScreen(
-                                organizedTrip: widget.organizedTrip,
+                              builder: (context) => PaymentRouteScreen(
+                                route: widget.route,
                                 seatPassengerData: seatPassengerList,
-                                numberOfPassengers: passengerCount,
+                                numberOfAdultPassengers: adultCount,
+                                numberOfChildPassengers: childCount,
                                 totalPrice: totalPrice,
                               ),
                             ),

@@ -10,5 +10,7 @@ namespace Travel.Services.Interfaces
 {
     public  interface INotificationService : ICRUDService<Models.Notification.Notification, NotificationSearchObject, NotificationRequest, NotificationRequest, long>
     {
+        void MarkNotificationAsRead(Models.Notification.ReadNotification readNotification);
+        List<Models.Notification.Notification> GetReadNotification(string passengerId);
     }
 }

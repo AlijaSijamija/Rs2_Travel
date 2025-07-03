@@ -18,6 +18,7 @@ import 'package:travel_admin/model/route_ticket/route_profit_report.dart';
 import 'package:travel_admin/model/search_result.dart';
 import 'package:travel_admin/providers/agency_provider.dart';
 import 'package:travel_admin/providers/route_ticket.dart';
+import 'package:travel_admin/widgets/master_screen.dart';
 
 class AgencyReportScreen extends StatefulWidget {
   const AgencyReportScreen({super.key});
@@ -130,47 +131,46 @@ class _AgencyReportScreenState extends State<AgencyReportScreen> {
       );
 
       if (_selectedAgencyId == null) {
-        final grouped = <String, List<dynamic>>{};
-        for (var item in pdfData) {
-          final agency = item.name ?? 'Unknown';
-          grouped.putIfAbsent(agency, () => []).add(item);
-        }
+        // Flatten all data into one table — combine all agencies into one list of rows
+        final allDataRows = pdfData.map((item) {
+          // Assuming item.name is agency name and item.price is price
+          // If you want agency name as a separate column, add it here
+          return [
+            item.name ?? 'Unknown',
+            item.price?.toStringAsFixed(2) ?? '0.00',
+          ];
+        }).toList();
 
-        grouped.forEach((agency, items) {
-          pdf.addPage(
-            pw.Page(
-              pageFormat: PdfPageFormat.a4,
-              build: (context) {
-                return pw.Column(
-                  crossAxisAlignment: pw.CrossAxisAlignment.start,
-                  children: [
-                    pw.Text('Agency: $agency',
-                        style: pw.TextStyle(
-                            fontSize: 20, fontWeight: pw.FontWeight.bold)),
-                    pw.SizedBox(height: 10),
-                    pw.Table.fromTextArray(
-                      border: null,
-                      headers: ['Name', 'Price (KM)'],
-                      data: items.map((item) {
-                        return [item.name, item.price?.toStringAsFixed(2)];
-                      }).toList(),
-                      headerStyle: pw.TextStyle(
-                          fontWeight: pw.FontWeight.bold,
-                          color: PdfColors.white),
-                      headerDecoration: pw.BoxDecoration(color: PdfColors.blue),
-                      cellAlignment: pw.Alignment.centerLeft,
-                      cellHeight: 30,
-                      cellAlignments: {
-                        0: pw.Alignment.centerLeft,
-                        1: pw.Alignment.centerRight,
-                      },
-                    ),
-                  ],
-                );
-              },
-            ),
-          );
-        });
+        pdf.addPage(
+          pw.Page(
+            pageFormat: PdfPageFormat.a4,
+            build: (context) {
+              return pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  pw.Text('Payment Details (All Agencies)',
+                      style: pw.TextStyle(
+                          fontSize: 20, fontWeight: pw.FontWeight.bold)),
+                  pw.SizedBox(height: 10),
+                  pw.Table.fromTextArray(
+                    border: null,
+                    headers: ['Agency Name', 'Price (BAM)'],
+                    data: allDataRows,
+                    headerStyle: pw.TextStyle(
+                        fontWeight: pw.FontWeight.bold, color: PdfColors.white),
+                    headerDecoration: pw.BoxDecoration(color: PdfColors.blue),
+                    cellAlignment: pw.Alignment.centerLeft,
+                    cellHeight: 30,
+                    cellAlignments: {
+                      0: pw.Alignment.centerLeft,
+                      1: pw.Alignment.centerRight,
+                    },
+                  ),
+                ],
+              );
+            },
+          ),
+        );
       } else {
         pdf.addPage(
           pw.Page(
@@ -185,7 +185,7 @@ class _AgencyReportScreenState extends State<AgencyReportScreen> {
                   pw.SizedBox(height: 12),
                   pw.Table.fromTextArray(
                     border: null,
-                    headers: ['Name', 'Price (KM)'],
+                    headers: ['Name', 'Price (BAM)'],
                     data: pdfData.map((item) {
                       return [item.name, item.price?.toStringAsFixed(2)];
                     }).toList(),
@@ -410,7 +410,7 @@ class _AgencyReportScreenState extends State<AgencyReportScreen> {
                     ? (_agencyProfits[group.x.toInt()].agencyName ?? '')
                     : (_routeProfits[group.x.toInt()].routeName ?? '');
                 return BarTooltipItem(
-                  '$label\n$value KM',
+                  '$label\n$value BAM',
                   const TextStyle(color: Colors.white),
                 );
               },
@@ -430,7 +430,7 @@ class _AgencyReportScreenState extends State<AgencyReportScreen> {
               style: TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           ..._agencyProfits.map((a) => Text(
-              "${a.agencyName}: ${a.totalProfit?.toStringAsFixed(2) ?? '0'} KM")),
+              "${a.agencyName}: ${a.totalProfit?.toStringAsFixed(2) ?? '0'} BAM")),
         ],
       );
     } else {
@@ -445,7 +445,7 @@ class _AgencyReportScreenState extends State<AgencyReportScreen> {
               style: const TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           ..._routeProfits.map((r) => Text(
-              "${r.routeName}: ${r.totalProfit?.toStringAsFixed(2) ?? '0'} KM")),
+              "${r.routeName}: ${r.totalProfit?.toStringAsFixed(2) ?? '0'} BAM")),
         ],
       );
     }
@@ -453,9 +453,9 @@ class _AgencyReportScreenState extends State<AgencyReportScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Profit by agencies")),
-      body: Padding(
+    return MasterScreenWidget(
+      title_widget: Text("Report"),
+      child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [

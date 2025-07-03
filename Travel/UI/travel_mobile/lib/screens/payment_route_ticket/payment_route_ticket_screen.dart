@@ -1,31 +1,32 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_credit_card/flutter_credit_card.dart';
 import 'package:provider/provider.dart';
-import 'package:travel_mobile/model/organized_trip/organized_trip.dart';
+import 'package:travel_mobile/model/route/route.dart';
 import 'package:travel_mobile/providers/account_provider.dart';
-import 'package:travel_mobile/providers/trip_ticket_provider.dart';
-import 'package:travel_mobile/screens/organized_trip/organized_trip_list_screen.dart';
+import 'package:travel_mobile/providers/route_ticket.dart';
+import 'package:travel_mobile/screens/routes/routes_list_screen.dart';
 
-class PaymentScreen extends StatefulWidget {
-  final OrganizedTripModel? organizedTrip;
+class PaymentRouteScreen extends StatefulWidget {
+  final RouteModel? route;
   final List<Map<String, String>> seatPassengerData;
-  final int numberOfPassengers;
+  final int numberOfAdultPassengers;
+  final int numberOfChildPassengers;
   final double totalPrice;
 
-  const PaymentScreen({
+  const PaymentRouteScreen({
     Key? key,
-    this.organizedTrip,
+    this.route,
     required this.seatPassengerData,
-    required this.numberOfPassengers,
+    required this.numberOfAdultPassengers,
+    required this.numberOfChildPassengers,
     required this.totalPrice,
   }) : super(key: key);
 
   @override
-  _PaymentScreenState createState() => _PaymentScreenState();
+  _PaymentRouteScreenState createState() => _PaymentRouteScreenState();
 }
 
-class _PaymentScreenState extends State<PaymentScreen> {
+class _PaymentRouteScreenState extends State<PaymentRouteScreen> {
   String cardNumber = '';
   String expiryDate = '';
   String cardHolderName = '';
@@ -36,7 +37,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   int get stripeAmount => widget.totalPrice.round();
 
   bool get isPayButtonEnabled =>
-      widget.numberOfPassengers > 0 && widget.totalPrice > 0;
+      widget.numberOfAdultPassengers > 0 && widget.totalPrice > 0;
 
   @override
   Widget build(BuildContext context) {
@@ -171,7 +172,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   Future<bool> _makePayment() async {
     try {
       List<String> parts = expiryDate.split('/');
-      var _tripTicketProvider = context.read<TripTicketProvider>();
+      var _routeTicketProvider = context.read<RouteTicketProvider>();
 
       var request = {
         'cardNumber': cardNumber,
@@ -180,10 +181,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
         'cvc': cvvCode,
         'cardHolderName': cardHolderName,
         'totalPrice': stripeAmount,
-        'personCount': widget.numberOfPassengers,
       };
 
-      var result = await _tripTicketProvider.pay(request);
+      var result = await _routeTicketProvider.pay(request);
       return result;
     } catch (e) {
       return false;
@@ -192,19 +192,19 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
   void _buyTicket(BuildContext context) async {
     try {
-      var _tripTicketProvider = context.read<TripTicketProvider>();
+      var _routeTicketProvider = context.read<RouteTicketProvider>();
       var currentUser = await context.read<AccountProvider>().getCurrentUser();
 
-      await _tripTicketProvider.insert({
+      await _routeTicketProvider.insert({
         'passengerId': currentUser.nameid,
         'price': widget.totalPrice,
-        'tripId': widget.organizedTrip!.id,
-        'numberOfPassengers': widget.numberOfPassengers,
+        'routeId': widget.route!.id,
+        'numberOfAdultPassengers': widget.numberOfAdultPassengers,
+        'numberOfChildPassengers': widget.numberOfChildPassengers,
         'seatNumbers': widget.seatPassengerData
             .map((entry) => {
-                  'seatNumber':
-                      entry['seatNumber'] ?? entry['seat'], // just in case
-                  'passengerName': entry['passengerName'] ?? entry['name'],
+                  'seatNumber': entry['seatNumber'],
+                  'passengerName': entry['passengerName'],
                 })
             .toList(),
       });
@@ -218,8 +218,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pushReplacement(
-                MaterialPageRoute(
-                    builder: (context) => OrganizedTripListScreen()),
+                MaterialPageRoute(builder: (context) => RoutesSearchScreen()),
               ),
               child: const Text("OK"),
             ),

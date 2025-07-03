@@ -11,14 +11,14 @@ part 'route_ticket.g.dart';
 class RouteTicketModel {
   int? id;
   String? passengerId;
-  AccountModel passenger;
+  AccountModel? passenger;
   double? price;
-  int? routeId;
-  RouteModel route;
   int? agencyId;
   AgencyModel? agency;
+  int? numberOfAdultPassengers;
+  int? numberOfChildPassengers;
   RouteTicketModel(this.id, this.passenger, this.passengerId, this.price,
-      this.routeId, this.route);
+      this.numberOfAdultPassengers, this.numberOfChildPassengers);
 
   /// A necessary factory constructor for creating a new User instance
   /// from a map. Pass the map to the generated `_$UserFromJson()` constructor.

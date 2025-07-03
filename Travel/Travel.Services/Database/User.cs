@@ -31,6 +31,7 @@ namespace Travel.Services.Database
         public virtual ICollection<RouteTicket> RouteTickets { get; set; } = new List<RouteTicket>();
         public virtual ICollection<TripTicket> TripTickets { get; set; } = new List<TripTicket>();
         public virtual ICollection<SavedRoutes> SavedRoutes { get; set; } = new List<SavedRoutes>();
+        public virtual ICollection<ReadNotification> ReadNotifications { get; set; } = new List<ReadNotification>();
 
         [NotMapped]
         public string FullName

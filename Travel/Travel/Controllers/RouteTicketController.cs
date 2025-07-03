@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Drawing;
 using Travel.Models.Filters;
+using Travel.Models.Payment;
 using Travel.Models.Route;
 using Travel.Models.RouteTicket;
 using Travel.Services.Interfaces;
@@ -11,9 +13,10 @@ namespace Travel.Controllers
     [ApiController]
     public class RouteTicketController : BaseCRUDController<Travel.Models.RouteTicket.RouteTicket, Travel.Models.Filters.RouteTicketSearchObject, Travel.Models.RouteTicket.RouteTicketRequest, Travel.Models.RouteTicket.RouteTicketRequest, long>
     {
-        public RouteTicketController(ILogger<BaseController<Travel.Models.RouteTicket.RouteTicket, Travel.Models.Filters.RouteTicketSearchObject, long>> logger, IRouteTicketService service) : base(logger, service)
+        private readonly IPaymentService _paymentTicketService;
+        public RouteTicketController(ILogger<BaseController<Travel.Models.RouteTicket.RouteTicket, Travel.Models.Filters.RouteTicketSearchObject, long>> logger, IRouteTicketService service, IPaymentService paymentTicketService) : base(logger, service)
         {
-
+            _paymentTicketService = paymentTicketService;
         }
 
         [HttpGet("route-profit")]
@@ -35,6 +38,27 @@ namespace Travel.Controllers
         {
             var result = (_service as IRouteTicketService).GeneratePaymentData(request.Year ?? DateTime.Now.Year, request.AgencyId);
             return result.ToList();
+        }
+
+        [HttpPost("pay")]
+        public virtual async Task<bool> Pay([FromBody] PaymentTicket request)
+        {
+            var result = await _paymentTicketService.Pay(request);
+            return result;
+        }
+
+        [HttpGet("routeTickets/{passengerId}")]
+        public virtual List<Models.Route.Route> GetRouteTickets([FromRoute] string passengerId)
+        {
+            var result = (_service as IRouteTicketService).GetRouteTickets(passengerId);
+            return result;
+        }
+
+        [HttpGet("reservedSeats/{routeId}")]
+        public virtual List<Models.TicketSeat.TicketSeat> GetReservedSeats([FromRoute] long routeId)
+        {
+            var result = (_service as IRouteTicketService).GetReservedSeats(routeId);
+            return result;
         }
     }
 }

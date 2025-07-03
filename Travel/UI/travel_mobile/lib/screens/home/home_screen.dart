@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:travel_mobile/model/notification/notification.dart';
 import '../../providers/notification_provider.dart';
+import '../../providers/account_provider.dart';
 import '../../widgets/master_screen.dart';
 
 class HomePageScreen extends StatefulWidget {
@@ -13,7 +14,10 @@ class HomePageScreen extends StatefulWidget {
 
 class _HomePageScreenState extends State<HomePageScreen> {
   late NotificationProvider _notificationProvider;
+  late String? currentUserId;
   List<NotificationModel>? notifications;
+  List<int> readNotificationIds = [];
+  String filter = 'All'; // Filter: All, Read, Unread
 
   @override
   void initState() {
@@ -22,30 +26,91 @@ class _HomePageScreenState extends State<HomePageScreen> {
     _loadData();
   }
 
-  _loadData() async {
+  Future<void> _loadData() async {
     try {
-      var notificationsData = await _notificationProvider.get();
+      var currentUser = await context.read<AccountProvider>().getCurrentUser();
+      currentUserId = currentUser.nameid;
+
+      var allNotifications = await _notificationProvider.get();
+      var readNotifications =
+          await _notificationProvider.getReadNotifications(currentUserId!);
 
       setState(() {
-        notifications = notificationsData.result;
+        notifications = allNotifications.result;
+        readNotificationIds = readNotifications.map((n) => n.id!).toList();
       });
     } catch (e) {
-      print("Error loading data: $e");
+      print("Error loading notifications: $e");
+    }
+  }
+
+  Future<void> _markAsRead(NotificationModel notification) async {
+    var filter = {
+      "passengerId": currentUserId,
+      "notificationId": notification.id.toString()
+    };
+    await _notificationProvider.markNotificationAsRead(filter: filter);
+    _loadData(); // Refresh after marking as read
+  }
+
+  List<NotificationModel> _getFilteredNotifications() {
+    if (notifications == null) return [];
+
+    switch (filter) {
+      case 'Read':
+        return notifications!
+            .where((n) => readNotificationIds.contains(n.id))
+            .toList();
+      case 'Unread':
+        return notifications!
+            .where((n) => !readNotificationIds.contains(n.id))
+            .toList();
+      default:
+        return notifications!;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final filteredNotifications = _getFilteredNotifications();
+
     return MasterScreenWidget(
-      title_widget: Text("Home"),
-      child: Container(
-        child: Column(
-          children: [
-            if (notifications != null && notifications!.isNotEmpty)
-              _buildHeading('Notifications'),
-            _buildNotifications(),
+      title_widget: const Text("Home"),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (notifications != null && notifications!.isNotEmpty) ...[
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
+              child: Row(
+                children: [
+                  const Text(
+                    "Filter:",
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(width: 12),
+                  DropdownButton<String>(
+                    value: filter,
+                    items: ['All', 'Read', 'Unread']
+                        .map((status) => DropdownMenuItem<String>(
+                              value: status,
+                              child: Text(status),
+                            ))
+                        .toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() => filter = value);
+                      }
+                    },
+                  ),
+                ],
+              ),
+            ),
+            _buildHeading('Notifications (${filteredNotifications.length})'),
           ],
-        ),
+          _buildNotifications(filteredNotifications),
+        ],
       ),
     );
   }
@@ -55,7 +120,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
       padding: const EdgeInsets.all(16.0),
       child: Text(
         heading,
-        style: TextStyle(
+        style: const TextStyle(
           fontSize: 20,
           fontWeight: FontWeight.bold,
         ),
@@ -63,16 +128,33 @@ class _HomePageScreenState extends State<HomePageScreen> {
     );
   }
 
-  Widget _buildNotifications() {
+  Widget _buildNotifications(List<NotificationModel> list) {
+    if (list.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.all(16),
+        child: Text("No notifications found."),
+      );
+    }
+
     return Column(
-      children: (notifications ?? []).map((NotificationModel notification) {
+      children: list.map((notification) {
+        final isRead = readNotificationIds.contains(notification.id);
+
         return Card(
           elevation: 4,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
           child: ListTile(
             title: Text(notification.heading ?? ''),
             subtitle: Text(notification.content ?? ''),
+            trailing: isRead
+                ? const Icon(Icons.check_circle, color: Colors.green)
+                : IconButton(
+                    icon: const Icon(Icons.mark_email_read_outlined),
+                    onPressed: () => _markAsRead(notification),
+                    tooltip: "Mark as read",
+                  ),
           ),
         );
       }).toList(),

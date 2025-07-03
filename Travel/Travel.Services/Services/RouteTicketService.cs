@@ -20,6 +20,29 @@ namespace Travel.Services.Services
 
         }
 
+        public override async Task BeforeInsert(Database.RouteTicket entity, Models.RouteTicket.RouteTicketRequest insert)
+        {
+            var trip = _context.Routes.FirstOrDefault(t => t.Id == insert.RouteId);
+            entity.AgencyId = trip.AgencyId;
+            trip.AvailableSeats = trip.AvailableSeats - (insert.NumberOfAdultPassengers + insert.NumberOfChildPassengers);
+            var list = new List<TicketSeat>();
+
+            if (insert.SeatNumbers != null)
+            {
+                foreach (var item in insert.SeatNumbers)
+                {
+                    var seatNumber = new TicketSeat
+                    {
+                        SeatNumber = item.SeatNumber,
+                        PassengerName = item.PassengerName
+                    };
+                    list.Add(seatNumber);
+                }
+            }
+
+            entity.TicketSeats = list;
+        }
+
         public override IQueryable<Database.RouteTicket> AddFilter(IQueryable<Database.RouteTicket> query, RouteTicketSearchObject? search = null)
         {
             var filteredQuery = base.AddFilter(query, search);
@@ -39,7 +62,7 @@ namespace Travel.Services.Services
 
         public override IQueryable<Database.RouteTicket> AddInclude(IQueryable<Database.RouteTicket> query, RouteTicketSearchObject? search = null)
         {
-            query = query.Include("Route").Include("Passenger").Include("SavedRoutes");
+            query = query.Include("Route").Include("Passenger").Include("SavedRoutes").Include("TicketSeats");
             return base.AddInclude(query, search);
         }
 
@@ -81,6 +104,8 @@ namespace Travel.Services.Services
         public List<PaymentDataPDF> GeneratePaymentData(int year, long? agencyId)
         {
             var query = _context.RouteTickets
+                .Include(r=>r.Route).ThenInclude(r=>r.FromCity)
+                .Include(r=>r.Route).ThenInclude(r=>r.ToCity)
                 .Where(rt => rt.CreatedAt.Year == year);
 
             if (agencyId != null)
@@ -88,23 +113,53 @@ namespace Travel.Services.Services
                 query = query.Where(rt => rt.AgencyId == agencyId);
 
                 return query
-                    .Select(rt => new PaymentDataPDF
+                  .GroupBy(rt => new
+                  {
+                      FromCityName = rt.Route.FromCity.Name,
+                      ToCityName = rt.Route.ToCity.Name
+                                      })
+                    .Select(g => new PaymentDataPDF
                     {
-                        Name = rt.Route.FromCity.Name + " - " + rt.Route.ToCity.Name,
-                        Price = rt.Price
+                        Name = g.Key.FromCityName + " - " + g.Key.ToCityName,
+                        Price = g.Sum(rt => rt.Price)
                     })
                     .ToList();
+
             }
             else
             {
                 return query
-                    .Select(rt => new PaymentDataPDF
+                    .GroupBy(rt => rt.Agency.Name)
+                    .Select(g => new PaymentDataPDF
                     {
-                        Name = rt.Agency.Name,
-                        Price = rt.Price
+                        Name = g.Key,
+                        Price = g.Sum(rt => rt.Price)
                     })
                     .ToList();
             }
+        }
+
+
+        public List<Models.Route.Route> GetRouteTickets(string passengerId)
+        {
+            var routes = _context.Routes.Include(o => o.RouteTickets).ThenInclude(o => o.Passenger).Include(o => o.Agency)
+                .Include(o=>o.FromCity).Include(o=>o.ToCity).ToList();
+            if (!string.IsNullOrWhiteSpace(passengerId))
+            {
+                routes = routes.Where(o => o.RouteTickets.Any(t => t.PassengerId == passengerId)).ToList();
+            }
+
+            return _mapper.Map<List<Models.Route.Route>>(routes);
+        }
+
+        public List<Models.TicketSeat.TicketSeat> GetReservedSeats(long routeId)
+        {
+            var reservedSeats = _context.TicketSeats
+                .Include(t => t.RouteTicket)
+                .Where(s => s.RouteTicket != null && s.RouteTicket.RouteId == routeId)
+                .ToList();
+
+            return _mapper.Map<List<Models.TicketSeat.TicketSeat>>(reservedSeats);
         }
     }
 }

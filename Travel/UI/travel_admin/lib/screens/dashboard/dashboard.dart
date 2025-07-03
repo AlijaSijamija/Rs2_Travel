@@ -113,7 +113,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   _buildUserCard('Admins', numberOfAdmins, Colors.green),
-                  _buildUserCard('Travelers', numberOfPassengers, Colors.blue),
+                  _buildUserCard('Passengers', numberOfPassengers, Colors.blue),
                 ],
               ),
             ],
@@ -157,7 +157,7 @@ class _DashboardPageState extends State<DashboardPage> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             _buildUserCard('Admins', numberOfAdmins, Colors.green),
-            _buildUserCard('Travelers', numberOfPassengers, Colors.blue),
+            _buildUserCard('Passengers', numberOfPassengers, Colors.blue),
           ],
         ),
       ],

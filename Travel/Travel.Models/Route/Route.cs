@@ -10,6 +10,7 @@ namespace Travel.Models.Route
     {
         public long Id { get; set; }
         public int NumberOfSeats { get; set; }
+        public int AvailableSeats { get; set; }
         public double AdultPrice { get; set; }
         public double ChildPrice { get; set; }
         public long FromCityId { get; set; }
@@ -19,7 +20,10 @@ namespace Travel.Models.Route
         public string TravelTime { get; set; }
         public TimeSpan DepartureTime { get; set; }
         public TimeSpan ArrivalTime { get; set; }
+        public DateTime ValidFrom { get; set; }
+        public DateTime ValidTo { get; set; }
         public long AgencyId { get; set; }
         public Agency.Agency Agency { get; set; }
+        public List<RouteTicket.RouteTicket> RouteTickets { get; set; }
     }
 }

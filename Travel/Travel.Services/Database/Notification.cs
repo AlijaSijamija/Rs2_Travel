@@ -16,5 +16,6 @@ namespace Travel.Services.Database
         public Section Section { get; set; }
         public string AdminId { get; set; }
         public User Admin { get; set; }
+        public virtual ICollection<ReadNotification> ReadNotifications { get; set; } = new List<ReadNotification>();
     }
 }

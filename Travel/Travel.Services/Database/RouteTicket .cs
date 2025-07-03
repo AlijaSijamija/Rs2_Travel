@@ -17,6 +17,10 @@ namespace Travel.Services.Database
         public Route Route { get; set; }
         public long AgencyId { get; set; }
         public Agency Agency { get; set; }
+        public int NumberOfAdultPassengers { get; set; }
+        public int NumberOfChildPassengers { get; set; }
+        public DateTime? DepartureDate { get; set; }
+        public DateTime ArrivalDate { get; set; }
         public virtual ICollection<TicketSeat> TicketSeats { get; set; } = new List<TicketSeat>();
     }
 }

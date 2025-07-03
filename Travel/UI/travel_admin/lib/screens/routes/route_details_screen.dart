@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:travel_admin/model/agency/agency.dart';
 import 'package:travel_admin/model/city/city.dart';
@@ -48,6 +49,8 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
       'agencyId': widget.route?.agencyId.toString(),
       'arrivalTime': parseTimeSpanToDateTime(widget.route?.arrivalTime),
       'departureTime': parseTimeSpanToDateTime(widget.route?.departureTime),
+      'validFrom': widget.route?.validFrom,
+      'validTo': widget.route?.validTo,
     };
     _routeProvider = context.read<RouteProvider>();
     _agencyProvider = context.read<AgencyProvider>();
@@ -101,7 +104,9 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
                           'numberOfSeats': formValue!['numberOfSeats'],
                           'childPrice': formValue['childPrice'],
                           'adultPrice': formValue['adultPrice'],
-                          'toCityId': int.tryParse(formValue['toCityId'])
+                          'toCityId': int.tryParse(formValue['toCityId']),
+                          'validFrom': formValue['validFrom'].toIso8601String(),
+                          'validTo': formValue['validTo'].toIso8601String(),
                         };
                         if (widget.route == null) {
                           await _routeProvider.insert(request);
@@ -518,6 +523,39 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
                       Row(
                         children: [
                           Expanded(
+                            child: FormBuilderDateTimePicker(
+                              name: 'validFrom',
+                              decoration: InputDecoration(
+                                labelText: 'Valid from',
+                              ),
+                              initialEntryMode: DatePickerEntryMode.calendar,
+                              inputType: InputType.date,
+                              format: DateFormat('dd-MM-yyyy'),
+                              validator: FormBuilderValidators.required(
+                                errorText: 'Valid from is required',
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 10),
+                          Expanded(
+                            child: FormBuilderDateTimePicker(
+                              name: 'validTo',
+                              decoration: InputDecoration(
+                                labelText: 'Valid to',
+                              ),
+                              initialEntryMode: DatePickerEntryMode.calendar,
+                              inputType: InputType.date,
+                              format: DateFormat('dd-MM-yyyy'),
+                              validator: FormBuilderValidators.required(
+                                errorText: 'Valid to is required',
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          Expanded(
                             child: FormBuilderTextField(
                               decoration: InputDecoration(
                                 labelText: "Number of seats",
@@ -545,6 +583,7 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
                           ),
                         ],
                       ),
+                      SizedBox(width: 10),
                     ],
                   )),
                 ),
