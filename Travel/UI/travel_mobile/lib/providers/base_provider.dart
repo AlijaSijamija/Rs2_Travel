@@ -10,7 +10,7 @@ import '../utils/util.dart';
 
 abstract class BaseProvider<T> with ChangeNotifier {
   static String baseUrl = const String.fromEnvironment("baseUrl",
-      defaultValue: "https://10.0.2.2:7264/api/");
+      defaultValue: "http://10.0.2.2:5269/api/");
   String _endpoint = "";
   HttpClient client = new HttpClient();
   IOClient? http;

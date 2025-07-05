@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:travel_mobile/model/notification/notification.dart';
+import 'package:travel_mobile/screens/home/notification_deatils_screen.dart';
 import '../../providers/notification_provider.dart';
 import '../../providers/account_provider.dart';
 import '../../widgets/master_screen.dart';
@@ -139,6 +140,9 @@ class _HomePageScreenState extends State<HomePageScreen> {
     return Column(
       children: list.map((notification) {
         final isRead = readNotificationIds.contains(notification.id);
+        final shortContent = (notification.content?.length ?? 0) > 80
+            ? "${notification.content!.substring(0, 80)}..."
+            : notification.content ?? "";
 
         return Card(
           elevation: 4,
@@ -147,14 +151,22 @@ class _HomePageScreenState extends State<HomePageScreen> {
           ),
           child: ListTile(
             title: Text(notification.heading ?? ''),
-            subtitle: Text(notification.content ?? ''),
+            subtitle: Text(shortContent),
             trailing: isRead
                 ? const Icon(Icons.check_circle, color: Colors.green)
-                : IconButton(
-                    icon: const Icon(Icons.mark_email_read_outlined),
-                    onPressed: () => _markAsRead(notification),
-                    tooltip: "Mark as read",
-                  ),
+                : Icon(Icons.mark_email_unread_outlined, color: Colors.orange),
+            onTap: () async {
+              if (!isRead) {
+                await _markAsRead(notification);
+              }
+
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) =>
+                      NotificationDetailScreen(notification: notification),
+                ),
+              );
+            },
           ),
         );
       }).toList(),
