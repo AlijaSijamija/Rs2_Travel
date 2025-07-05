@@ -75,7 +75,7 @@ var factory = new ConnectionFactory
 using var connection = factory.CreateConnection();
 using var channel = connection.CreateModel();
 
-channel.QueueDeclare(queue: "links",
+channel.QueueDeclare(queue: "notifications",
                      durable: false,
                      exclusive: false,
                      autoDelete: true,
@@ -89,16 +89,16 @@ consumer.Received += async (model, ea) =>
     var body = ea.Body.ToArray();
     var message = Encoding.UTF8.GetString(body);
     Console.WriteLine(message.ToString());
-    var link = JsonSerializer.Deserialize<NotificationRequest>(message);
+    var notification = JsonSerializer.Deserialize<NotificationRequest>(message);
     using (var scope = app.Services.CreateScope())
     {
-        var usefulLinksService = scope.ServiceProvider.GetRequiredService<INotificationService>();
+        var notificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
 
-        if (link != null)
+        if (notification != null)
         {
             try
             {
-                await usefulLinksService.Insert(link);
+                await notificationService.Insert(notification);
             }
             catch (Exception e)
             {
