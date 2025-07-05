@@ -89,7 +89,7 @@ consumer.Received += async (model, ea) =>
     var body = ea.Body.ToArray();
     var message = Encoding.UTF8.GetString(body);
     Console.WriteLine(message.ToString());
-    var notification = JsonSerializer.Deserialize<NotificationRequest>(message);
+    var notification = JsonSerializer.Deserialize<List<Travel.Models.Notification.Notification>>(message);
     using (var scope = app.Services.CreateScope())
     {
         var notificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
@@ -98,7 +98,7 @@ consumer.Received += async (model, ea) =>
         {
             try
             {
-                await notificationService.Insert(notification);
+                Console.WriteLine("Insert  notification finished");
             }
             catch (Exception e)
             {
