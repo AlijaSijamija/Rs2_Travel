@@ -27,9 +27,9 @@ namespace Travel.Controllers
         }
 
         [HttpPut("saved-routes/{passengerId}")]
-        public virtual List<Models.Route.Route> GetSavedRoutes([FromRoute] string passengerId)
+        public virtual async  Task<List<Models.Route.Route>> GetSavedRoutes([FromRoute] string passengerId)
         {
-          return  (_service as IRouteService).GetSavedRoutes(passengerId);
+          return  await (_service as IRouteService).GetSavedRoutes(passengerId);
         }
     }
 }

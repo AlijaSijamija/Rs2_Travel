@@ -61,7 +61,8 @@ namespace Travel.Services.Services
 
         public void SaveRoute(SaveRoute saveRoute)
         {
-            var saveRouteDb = new Database.SavedRoutes() { PassengerId = saveRoute.PassengerId, RouteId = saveRoute.RouteId };
+            var saveRouteDb = new Database.SavedRoutes() { PassengerId = saveRoute.PassengerId, RouteId = saveRoute.RouteId
+            ,ValidFrom=saveRoute.ValidFrom, ValidTo=saveRoute.ValidTo};
             _context.SavedRoutes.Add(saveRouteDb);
             _context.SaveChanges();
         }
@@ -73,10 +74,39 @@ namespace Travel.Services.Services
             _context.SaveChanges();
         }
 
-        public List<Models.Route.Route> GetSavedRoutes(string passengerId)
+        public async Task<List<Models.Route.Route>> GetSavedRoutes(string passengerId)
         {
-            var savedRoutes = _context.Routes.Include(s=>s.SavedRoutes).Include(s=>s.Agency).Include(s=>s.FromCity).Include(s=>s.ToCity).Where(s => s.SavedRoutes.Any(sr=>sr.PassengerId==passengerId)).ToList();
-            return _mapper.Map<List<Models.Route.Route>>(savedRoutes);
+            var savedRoutes = await _context.SavedRoutes
+                .Include(sr => sr.Route)
+                    .ThenInclude(r => r.FromCity)
+                .Include(sr => sr.Route)
+                    .ThenInclude(r => r.ToCity)
+                .Include(sr => sr.Route)
+                    .ThenInclude(r => r.Agency)
+                .Where(sr => sr.PassengerId == passengerId)
+                .Select(sr => new Models.Route.Route
+                {
+                    Id = sr.Route.Id,
+                    NumberOfSeats = sr.Route.NumberOfSeats,
+                    AvailableSeats = sr.Route.AvailableSeats,
+                    AdultPrice = sr.Route.AdultPrice,
+                    ChildPrice = sr.Route.ChildPrice,
+                    FromCityId = sr.Route.FromCityId,
+                    FromCity =  _mapper.Map<Models.City.City>(sr.Route.FromCity),
+                    ToCityId = sr.Route.ToCityId,
+                    ToCity = _mapper.Map<Models.City.City>(sr.Route.ToCity),
+                    TravelTime = sr.Route.TravelTime,
+                    DepartureTime = sr.Route.DepartureTime,
+                    ArrivalTime = sr.Route.ArrivalTime,
+                    ValidFrom = sr.ValidFrom,
+                    ValidTo = sr.ValidTo,
+                    AgencyId = sr.Route.AgencyId,
+                    Agency = _mapper.Map<Models.Agency.Agency>(sr.Route.Agency)
+                })
+                .ToListAsync();
+
+            return savedRoutes;
         }
+
     }
 }

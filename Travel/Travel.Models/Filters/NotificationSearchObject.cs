@@ -8,6 +8,7 @@ namespace Travel.Models.Filters
 {
     public class NotificationSearchObject : BaseSearchObject
     {
-        public string ? Heading { get; set; }
+        public string? Heading { get; set; }
+        public long? SectionId { get; set; }
     }
 }

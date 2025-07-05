@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:travel_mobile/model/route/route.dart';
 import 'package:travel_mobile/providers/account_provider.dart';
@@ -184,6 +185,12 @@ class _SavedRoutesScreenState extends State<SavedRoutesScreen> {
                                 itemCount: filteredRoutes.length,
                                 itemBuilder: (context, index) {
                                   final route = filteredRoutes[index];
+                                  final formattedValidFrom =
+                                      DateFormat('yyyy-MM-dd')
+                                          .format(route.validFrom!);
+                                  final formattedValidTo =
+                                      DateFormat('yyyy-MM-dd')
+                                          .format(route.validTo!);
 
                                   return Card(
                                     margin:
@@ -194,6 +201,15 @@ class _SavedRoutesScreenState extends State<SavedRoutesScreen> {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
+                                          // ✅ Dodan tekst za period
+                                          Text(
+                                            "You saved this route for this period: $formattedValidFrom to $formattedValidTo",
+                                            style: const TextStyle(
+                                                fontStyle: FontStyle.italic,
+                                                color: Colors.blueAccent),
+                                          ),
+                                          const SizedBox(height: 8),
+
                                           Text(
                                             "${route.fromCity!.name} → ${route.toCity!.name}",
                                             style: const TextStyle(
@@ -257,6 +273,9 @@ class _SavedRoutesScreenState extends State<SavedRoutesScreen> {
                                                         RouteSeatSelectionView(
                                                       route: route,
                                                       oneWayOnly: false,
+                                                      validFrom:
+                                                          formattedValidFrom,
+                                                      validTo: formattedValidTo,
                                                     ),
                                                   ),
                                                 );
@@ -268,8 +287,7 @@ class _SavedRoutesScreenState extends State<SavedRoutesScreen> {
                                       ),
                                     ),
                                   );
-                                },
-                              ),
+                                }),
                       ),
                     ],
                   ),

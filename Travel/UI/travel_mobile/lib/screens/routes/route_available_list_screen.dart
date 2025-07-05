@@ -64,7 +64,12 @@ class _RoutesListScreenState extends State<RoutesListScreen> {
         _bookmarkedRouteIds.remove(routeId);
       } else {
         _routeProvider.saveRoute(
-          filter: {'passengerId': userId, 'routeId': routeId.toString()},
+          filter: {
+            'passengerId': userId,
+            'routeId': routeId.toString(),
+            'validFrom': widget.validFrom,
+            'validTo': widget.validTo
+          },
         );
         _bookmarkedRouteIds.add(routeId);
       }

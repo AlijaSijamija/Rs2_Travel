@@ -156,4 +156,17 @@ class AccountProvider extends BaseProvider<AccountModel> {
       throw new Exception("Unknown error");
     }
   }
+
+  Future<void> remove(String id) async {
+    var url = "${BaseProvider.baseUrl}Account/remove/$id";
+    var uri = Uri.parse(url);
+    var headers = createHeaders();
+
+    var response = await http.delete(uri, headers: headers);
+
+    if (isValidResponse(response)) {
+    } else {
+      throw new Exception("Failed to delete user");
+    }
+  }
 }

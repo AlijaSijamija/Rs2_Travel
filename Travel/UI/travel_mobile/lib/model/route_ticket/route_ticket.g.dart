@@ -16,6 +16,12 @@ RouteTicketModel _$RouteTicketModelFromJson(Map<String, dynamic> json) =>
       (json['price'] as num?)?.toDouble(),
       (json['numberOfAdultPassengers'] as num?)?.toInt(),
       (json['numberOfChildPassengers'] as num?)?.toInt(),
+      json['departureDate'] == null
+          ? null
+          : DateTime.parse(json['departureDate'] as String),
+      json['arrivalDate'] == null
+          ? null
+          : DateTime.parse(json['arrivalDate'] as String),
     )
       ..agencyId = (json['agencyId'] as num?)?.toInt()
       ..agency = json['agency'] == null
@@ -32,4 +38,6 @@ Map<String, dynamic> _$RouteTicketModelToJson(RouteTicketModel instance) =>
       'agency': instance.agency,
       'numberOfAdultPassengers': instance.numberOfAdultPassengers,
       'numberOfChildPassengers': instance.numberOfChildPassengers,
+      'departureDate': instance.departureDate?.toIso8601String(),
+      'arrivalDate': instance.arrivalDate?.toIso8601String(),
     };

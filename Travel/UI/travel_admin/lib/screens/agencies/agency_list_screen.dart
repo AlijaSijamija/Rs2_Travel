@@ -17,26 +17,30 @@ class AgencyListScreen extends StatefulWidget {
 class _AgencyListScreenState extends State<AgencyListScreen> {
   late AgencyProvider _agencyProvider;
   SearchResult<AgencyModel>? result;
-  TextEditingController _nameController = new TextEditingController();
+  TextEditingController _nameController = TextEditingController();
 
-  @override
-  void didChangeDependencies() {
-    // TODO: implement didChangeDependencies
-    super.didChangeDependencies();
-  }
+  int currentPage = 1;
+  final int pageSize = 10; // koliko elemenata po stranici
 
   @override
   void initState() {
     super.initState();
     _agencyProvider = context.read<AgencyProvider>();
-    // Call your method here
     _loadData();
   }
 
-  _loadData() async {
-    var data = await _agencyProvider.get();
+  Future<void> _loadData({int? page}) async {
+    var filter = {
+      'name': _nameController.text,
+      'page': page ?? currentPage,
+      'pageSize': pageSize,
+    };
+
+    var data = await _agencyProvider.get(filter: filter);
+
     setState(() {
       result = data;
+      if (page != null) currentPage = page;
     });
   }
 
@@ -45,7 +49,13 @@ class _AgencyListScreenState extends State<AgencyListScreen> {
     return MasterScreenWidget(
       title_widget: Text("Agency list"),
       child: Container(
-        child: Column(children: [_buildSearch(), _buildDataListView()]),
+        child: Column(
+          children: [
+            _buildSearch(),
+            _buildDataListView(),
+            _buildPaginationControls(),
+          ],
+        ),
       ),
     );
   }
@@ -55,9 +65,7 @@ class _AgencyListScreenState extends State<AgencyListScreen> {
       padding: const EdgeInsets.all(8.0),
       child: Row(
         children: [
-          SizedBox(
-            width: 8,
-          ),
+          SizedBox(width: 8),
           Expanded(
             child: TextField(
               decoration: InputDecoration(labelText: "Name"),
@@ -65,30 +73,23 @@ class _AgencyListScreenState extends State<AgencyListScreen> {
             ),
           ),
           ElevatedButton(
-              onPressed: () async {
-                var data = await _agencyProvider.get(filter: {
-                  'name': _nameController.text,
-                });
-
-                setState(() {
-                  result = data;
-                });
-              },
-              child: Text("Search")),
-          SizedBox(
-            width: 8,
+            onPressed: () {
+              currentPage = 1; // resetuj na prvu stranicu prilikom pretrage
+              _loadData(page: currentPage);
+            },
+            child: Text("Search"),
           ),
+          SizedBox(width: 8),
           ElevatedButton(
-              onPressed: () async {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => AgencyDetailScreen(
-                      agencyModel: null,
-                    ),
-                  ),
-                );
-              },
-              child: Text("Add new"))
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => AgencyDetailScreen(agencyModel: null),
+                ),
+              );
+            },
+            child: Text("Add new"),
+          ),
         ],
       ),
     );
@@ -98,13 +99,13 @@ class _AgencyListScreenState extends State<AgencyListScreen> {
     return Expanded(
       child: SingleChildScrollView(
         child: Container(
-          color: Colors.white, // Background color for the table
+          color: Colors.white,
           child: DataTable(
-            columnSpacing: 24.0, // Adjust column spacing as needed
-            headingRowColor: WidgetStateColor.resolveWith(
-                (states) => Colors.indigo), // Header row color
-            dataRowColor: WidgetStateColor.resolveWith(
-                (states) => Colors.white), // Row color
+            columnSpacing: 24.0,
+            headingRowColor:
+                MaterialStateColor.resolveWith((states) => Colors.indigo),
+            dataRowColor:
+                MaterialStateColor.resolveWith((states) => Colors.white),
             columns: [
               DataColumn(
                 label: Text(
@@ -128,30 +129,60 @@ class _AgencyListScreenState extends State<AgencyListScreen> {
                 ),
               ),
             ],
-            rows: result?.result
-                    .map((AgencyModel e) => DataRow(
-                          onSelectChanged: (selected) => {
-                            if (selected == true)
-                              {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (context) => AgencyDetailScreen(
-                                      agencyModel: e,
-                                    ),
-                                  ),
-                                )
-                              }
-                          },
-                          cells: [
-                            DataCell(Text(e.name ?? "")),
-                            DataCell(Text(e.web ?? "")),
-                            DataCell(Text(e.contact ?? "")),
-                          ],
-                        ))
-                    .toList() ??
+            rows: result?.result.map((e) {
+                  void onRowTap() {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            AgencyDetailScreen(agencyModel: e),
+                      ),
+                    );
+                  }
+
+                  return DataRow(
+                    cells: [
+                      DataCell(Text(e.name ?? ""), onTap: onRowTap),
+                      DataCell(Text(e.web ?? ""), onTap: onRowTap),
+                      DataCell(Text(e.contact ?? ""), onTap: onRowTap),
+                    ],
+                  );
+                }).toList() ??
                 [],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildPaginationControls() {
+    final int totalItems = result?.count ?? 0;
+    final int totalPages = (totalItems / pageSize).ceil();
+
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          ElevatedButton(
+            onPressed: currentPage > 1
+                ? () {
+                    _loadData(page: currentPage - 1);
+                  }
+                : null,
+            child: Text('Previous'),
+          ),
+          SizedBox(width: 20),
+          Text('Page $currentPage of $totalPages'),
+          SizedBox(width: 20),
+          ElevatedButton(
+            onPressed: currentPage < totalPages
+                ? () {
+                    _loadData(page: currentPage + 1);
+                  }
+                : null,
+            child: Text('Next'),
+          ),
+        ],
       ),
     );
   }

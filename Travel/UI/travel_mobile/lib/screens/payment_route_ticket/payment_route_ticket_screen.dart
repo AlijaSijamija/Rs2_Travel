@@ -11,6 +11,8 @@ class PaymentRouteScreen extends StatefulWidget {
   final List<Map<String, String>> seatPassengerData;
   final int numberOfAdultPassengers;
   final int numberOfChildPassengers;
+  final String arrivalDate;
+  final String? departureDate;
   final double totalPrice;
 
   const PaymentRouteScreen({
@@ -19,6 +21,8 @@ class PaymentRouteScreen extends StatefulWidget {
     required this.seatPassengerData,
     required this.numberOfAdultPassengers,
     required this.numberOfChildPassengers,
+    required this.arrivalDate,
+    this.departureDate,
     required this.totalPrice,
   }) : super(key: key);
 
@@ -201,6 +205,8 @@ class _PaymentRouteScreenState extends State<PaymentRouteScreen> {
         'routeId': widget.route!.id,
         'numberOfAdultPassengers': widget.numberOfAdultPassengers,
         'numberOfChildPassengers': widget.numberOfChildPassengers,
+        "departureDate": widget.departureDate,
+        "arrivalDate": widget.arrivalDate,
         'seatNumbers': widget.seatPassengerData
             .map((entry) => {
                   'seatNumber': entry['seatNumber'],

@@ -9,6 +9,7 @@ import 'package:travel_admin/providers/route_provider.dart';
 import 'package:travel_admin/providers/route_ticket.dart';
 import 'package:travel_admin/providers/section_provider.dart';
 import 'package:travel_admin/providers/trip_service_provider.dart';
+import 'package:travel_admin/providers/trip_ticket_provider.dart';
 import 'package:travel_admin/screens/dashboard/dashboard.dart';
 import 'package:travel_admin/utils/util.dart';
 
@@ -24,6 +25,7 @@ void main() {
       ChangeNotifierProvider(create: (_) => TripServiceProvider()),
       ChangeNotifierProvider(create: (_) => OrganizedTripProvider()),
       ChangeNotifierProvider(create: (_) => RouteTicketProvider()),
+      ChangeNotifierProvider(create: (_) => TripTicketProvider()),
     ],
     child: const MyMaterialApp(),
   ));

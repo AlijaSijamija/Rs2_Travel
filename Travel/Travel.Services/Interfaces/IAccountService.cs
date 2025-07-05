@@ -19,5 +19,6 @@ namespace Travel.Services.Interfaces
         public Task<UserResponse> UpdateProfile(string userId, UserUpdateRequest request);
         public Task<UserResponse> UserProfile(string userId);
         public Task ChangePassword(string userId, ChangePasswordRequest request);
+        public Task RemoveUser(string userId);
     }
 }

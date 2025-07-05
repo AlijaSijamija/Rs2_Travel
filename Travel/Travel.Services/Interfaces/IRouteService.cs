@@ -13,6 +13,6 @@ namespace Travel.Services.Interfaces
     {
         void SaveRoute(SaveRoute saveRoute);
         void RemoveSavedRoute(SaveRoute saveRoute);
-        List<Models.Route.Route> GetSavedRoutes(string passengerId);
+        Task<List<Models.Route.Route>> GetSavedRoutes(string passengerId);
     }
 }

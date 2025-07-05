@@ -335,6 +335,8 @@ class _RouteSeatSelectionViewState extends State<RouteSeatSelectionView> {
                                 numberOfAdultPassengers: adultCount,
                                 numberOfChildPassengers: childCount,
                                 totalPrice: totalPrice,
+                                arrivalDate: widget.validFrom,
+                                departureDate: widget.validTo,
                               ),
                             ),
                           );

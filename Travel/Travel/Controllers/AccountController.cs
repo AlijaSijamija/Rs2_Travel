@@ -97,5 +97,14 @@ namespace Travel.Controllers
             await (_service as IAccountService).ChangePassword(userId, request);
             return Ok();
         }
+
+        [Authorize]
+        [HttpDelete("remove/{userId}")]
+        public async Task<ActionResult> Remove([FromRoute] string userId)
+        {
+
+            await (_service as IAccountService).RemoveUser(userId);
+            return Ok();
+        }
     }
 }

@@ -260,5 +260,12 @@ namespace Travel.Services.Services
                 throw new ApiException(result.Errors?.FirstOrDefault()?.Description, System.Net.HttpStatusCode.BadRequest);
         }
 
+        public async Task RemoveUser(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            user.DeletedAt = DateTime.Now;
+            await _appDbContext.SaveChangesAsync();
+        }
+
     }
 }

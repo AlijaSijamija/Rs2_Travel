@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:travel_mobile/providers/account_provider.dart';
-import 'package:travel_mobile/providers/route_ticket.dart';
-import 'package:travel_mobile/widgets/master_screen.dart';
+import 'package:travel_admin/providers/route_ticket.dart';
+import 'package:travel_admin/widgets/master_screen.dart';
 
 class BookedRoutesScreen extends StatefulWidget {
-  const BookedRoutesScreen({super.key});
+  final String userId;
+  const BookedRoutesScreen({super.key, required this.userId});
 
   @override
   State<BookedRoutesScreen> createState() => _BookedRoutesScreenState();
@@ -19,7 +19,6 @@ class _BookedRoutesScreenState extends State<BookedRoutesScreen>
   bool? passed;
   bool isLoading = false;
   late TabController _tabController;
-  String? currentUserId;
 
   String cityFromFilter = '';
   String cityToFilter = '';
@@ -35,8 +34,6 @@ class _BookedRoutesScreenState extends State<BookedRoutesScreen>
   }
 
   Future<void> _loadCurrentUserAndRoutes() async {
-    var currentUser = await context.read<AccountProvider>().getCurrentUser();
-    currentUserId = currentUser.nameid;
     _handleTabChange();
   }
 
@@ -46,7 +43,7 @@ class _BookedRoutesScreenState extends State<BookedRoutesScreen>
     });
 
     var provider = context.read<RouteTicketProvider>();
-    var routes = await provider.getRouteTickets(currentUserId!);
+    var routes = await provider.getRouteTickets(widget.userId);
 
     setState(() {
       allBookedRoutes = routes;
@@ -93,8 +90,8 @@ class _BookedRoutesScreenState extends State<BookedRoutesScreen>
   @override
   Widget build(BuildContext context) {
     return MasterScreenWidget(
-      title: "My route tickets",
-      showBackButton: false,
+      title: "User route tickets",
+      showBackButton: true,
       child: Column(
         children: [
           TabBar(
@@ -148,7 +145,7 @@ class _BookedRoutesScreenState extends State<BookedRoutesScreen>
                                   final tickets =
                                       (route['routeTickets'] as List<dynamic>)
                                           .where((o) =>
-                                              o['passengerId'] == currentUserId)
+                                              o['passengerId'] == widget.userId)
                                           .toList();
                                   final now = DateTime.now();
                                   final filteredTickets =

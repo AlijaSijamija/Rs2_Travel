@@ -14,7 +14,6 @@ class OrganizedTripListScreen extends StatefulWidget {
   @override
   State<OrganizedTripListScreen> createState() =>
       _OrganizedTripListScreenState();
-  void functionThatSetsTheState() {}
 }
 
 class _OrganizedTripListScreenState extends State<OrganizedTripListScreen> {
@@ -24,35 +23,49 @@ class _OrganizedTripListScreenState extends State<OrganizedTripListScreen> {
   SearchResult<AgencyModel>? agenciesResult;
   String? selectedValue;
 
-  @override
-  void didChangeDependencies() {
-    // TODO: implement didChangeDependencies
-    super.didChangeDependencies();
-  }
+  int currentPage = 1;
+  final int pageSize = 10;
 
   @override
   void initState() {
     super.initState();
     _organizedTripProvider = context.read<OrganizedTripProvider>();
     _agencyProvider = context.read<AgencyProvider>();
-    // Call your method here
     _loadData();
   }
 
-  _loadData() async {
-    agenciesResult = await _agencyProvider.get();
-    var data = await _organizedTripProvider.get();
+  Future<void> _loadData({int? page}) async {
+    agenciesResult ??= await _agencyProvider.get();
+
+    final filter = <String, dynamic>{
+      if (selectedValue != null) 'agencyId': selectedValue,
+      'page': page ?? currentPage,
+      'pageSize': pageSize,
+    };
+
+    final data = await _organizedTripProvider.get(filter: filter);
+
     setState(() {
       result = data;
+      if (page != null) currentPage = page;
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final int totalItems = result?.count ?? 0;
+    final int totalPages = (totalItems / pageSize).ceil();
+
     return MasterScreenWidget(
       title_widget: Text("Organized trips list"),
       child: Container(
-        child: Column(children: [_buildSearch(), _buildDataListView()]),
+        child: Column(
+          children: [
+            _buildSearch(),
+            _buildDataListView(),
+            _buildPaginationControls(totalPages),
+          ],
+        ),
       ),
     );
   }
@@ -62,35 +75,21 @@ class _OrganizedTripListScreenState extends State<OrganizedTripListScreen> {
       padding: const EdgeInsets.all(8.0),
       child: Row(
         children: [
-          SizedBox(
-            width: 8,
-          ),
+          SizedBox(width: 8),
           Expanded(
             child: DropdownButton<String>(
               value: selectedValue,
               hint: Text('Select agency'),
-              onChanged: (newValue) async {
+              onChanged: (newValue) {
                 setState(() {
                   selectedValue = newValue;
+                  currentPage = 1; // reset page on filter change
                 });
-
-                var filter = {
-                  'agencyId': selectedValue,
-                };
-
-                if (selectedValue == null) {
-                  filter['agencyId'] = null;
-                }
-
-                var data = await _organizedTripProvider.get(filter: filter);
-
-                setState(() {
-                  result = data;
-                });
+                _loadData(page: currentPage);
               },
               items: [
                 DropdownMenuItem<String>(
-                  value: null, // Use null value for "All" option
+                  value: null,
                   child: Text('All agencies'),
                 ),
                 ...?agenciesResult?.result.map((item) {
@@ -102,20 +101,19 @@ class _OrganizedTripListScreenState extends State<OrganizedTripListScreen> {
               ],
             ),
           ),
-          SizedBox(
-            width: 8,
-          ),
+          SizedBox(width: 8),
           ElevatedButton(
-              onPressed: () async {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => OrganizedTripDetailScreen(
-                      organizedTrip: null,
-                    ),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => OrganizedTripDetailScreen(
+                    organizedTrip: null,
                   ),
-                );
-              },
-              child: Text("Add new"))
+                ),
+              );
+            },
+            child: Text("Add new"),
+          ),
         ],
       ),
     );
@@ -125,13 +123,13 @@ class _OrganizedTripListScreenState extends State<OrganizedTripListScreen> {
     return Expanded(
       child: SingleChildScrollView(
         child: Container(
-          color: Colors.white, // Background color for the table
+          color: Colors.white,
           child: DataTable(
-            columnSpacing: 24.0, // Adjust column spacing as needed
-            headingRowColor: WidgetStateColor.resolveWith(
-                (states) => Colors.indigo), // Header row color
-            dataRowColor: WidgetStateColor.resolveWith(
-                (states) => Colors.white), // Row color
+            columnSpacing: 24.0,
+            headingRowColor:
+                MaterialStateColor.resolveWith((states) => Colors.indigo),
+            dataRowColor:
+                MaterialStateColor.resolveWith((states) => Colors.white),
             columns: [
               DataColumn(
                 label: Text(
@@ -162,31 +160,57 @@ class _OrganizedTripListScreenState extends State<OrganizedTripListScreen> {
                 ),
               ),
             ],
-            rows: result?.result
-                    .map((OrganizedTripModel e) => DataRow(
-                          onSelectChanged: (selected) => {
-                            if (selected == true)
-                              {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        OrganizedTripDetailScreen(
-                                      organizedTrip: e,
-                                    ),
-                                  ),
-                                )
-                              }
-                          },
-                          cells: [
-                            DataCell(Text(e.tripName ?? "")),
-                            DataCell(Text(e.agency?.name ?? "")),
-                            DataCell(Text(e.destination ?? "")),
-                            DataCell(Text(e.contactInfo ?? "")),
-                          ],
-                        ))
-                    .toList() ??
+            rows: result?.result.map((e) {
+                  return DataRow(
+                    cells: [
+                      DataCell(Text(e.tripName ?? ""),
+                          onTap: () => _openDetail(e)),
+                      DataCell(Text(e.agency?.name ?? ""),
+                          onTap: () => _openDetail(e)),
+                      DataCell(Text(e.destination ?? ""),
+                          onTap: () => _openDetail(e)),
+                      DataCell(Text(e.contactInfo ?? ""),
+                          onTap: () => _openDetail(e)),
+                    ],
+                  );
+                }).toList() ??
                 [],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPaginationControls(int totalPages) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          ElevatedButton(
+            onPressed:
+                currentPage > 1 ? () => _loadData(page: currentPage - 1) : null,
+            child: Text('Previous'),
+          ),
+          SizedBox(width: 20),
+          Text('Page $currentPage of $totalPages'),
+          SizedBox(width: 20),
+          ElevatedButton(
+            onPressed: currentPage < totalPages
+                ? () => _loadData(page: currentPage + 1)
+                : null,
+            child: Text('Next'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _openDetail(OrganizedTripModel trip) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => OrganizedTripDetailScreen(
+          organizedTrip: trip,
         ),
       ),
     );

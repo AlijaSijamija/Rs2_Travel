@@ -28,6 +28,11 @@ namespace Travel.Services.Services
                 filteredQuery = filteredQuery.Where(x => x.Heading.Contains(search.Heading));
             }
 
+            if (search.SectionId != null)
+            {
+                filteredQuery = filteredQuery.Where(x =>x.SectionId == search.SectionId );
+            }
+
             return filteredQuery;
         }
 

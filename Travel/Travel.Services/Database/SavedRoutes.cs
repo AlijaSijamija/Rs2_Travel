@@ -14,5 +14,7 @@ namespace Travel.Services.Database
         public User Passenger { get; set; }
         public long RouteId { get; set; }
         public Route Route { get; set; }
+        public DateTime ValidFrom { get; set; }
+        public DateTime ValidTo { get; set; }
     }
 }

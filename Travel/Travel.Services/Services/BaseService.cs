@@ -36,8 +36,10 @@ namespace Travel.Services.Services
 
             if (search?.Page.HasValue == true && search?.PageSize.HasValue == true)
             {
-                query = query.Take(search.PageSize.Value).Skip(search.Page.Value * search.PageSize.Value);
+                var skip = (search.Page.Value - 1) * search.PageSize.Value;
+                query = query.Skip(skip).Take(search.PageSize.Value);
             }
+
 
             var list = await query.ToListAsync();
 

@@ -89,4 +89,19 @@ class RouteTicketProvider extends BaseProvider<RouteTicketModel> {
       throw new Exception("Unknown error");
     }
   }
+
+  Future<List<dynamic>> getRouteTickets(String passengerId) async {
+    var url = "${BaseProvider.baseUrl}RouteTicket/routeTickets/$passengerId";
+
+    var uri = Uri.parse(url);
+    var headers = createAuthorizationHeaders();
+    var response = await http.get(uri, headers: headers);
+
+    if (isValidResponse(response)) {
+      var data = jsonDecode(response.body);
+      return data;
+    } else {
+      return [];
+    }
+  }
 }

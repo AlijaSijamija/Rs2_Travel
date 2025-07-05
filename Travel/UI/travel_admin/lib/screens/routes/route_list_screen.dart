@@ -169,13 +169,13 @@ class _RouteListScreenState extends State<RouteListScreen> {
     return Expanded(
       child: SingleChildScrollView(
         child: Container(
-          color: Colors.white, // Background color for the table
+          color: Colors.white,
           child: DataTable(
-            columnSpacing: 24.0, // Adjust column spacing as needed
-            headingRowColor: WidgetStateColor.resolveWith(
-                (states) => Colors.indigo), // Header row color
-            dataRowColor: WidgetStateColor.resolveWith(
-                (states) => Colors.white), // Row color
+            columnSpacing: 24.0,
+            headingRowColor:
+                MaterialStateColor.resolveWith((states) => Colors.indigo),
+            dataRowColor:
+                MaterialStateColor.resolveWith((states) => Colors.white),
             columns: [
               DataColumn(
                 label: Text(
@@ -199,27 +199,23 @@ class _RouteListScreenState extends State<RouteListScreen> {
                 ),
               ),
             ],
-            rows: result?.result
-                    .map((RouteModel e) => DataRow(
-                          onSelectChanged: (selected) => {
-                            if (selected == true)
-                              {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (context) => RouteDetailScreen(
-                                      route: e,
-                                    ),
-                                  ),
-                                )
-                              }
-                          },
-                          cells: [
-                            DataCell(Text(e.agency?.name ?? "")),
-                            DataCell(Text(e.fromCity?.name ?? "")),
-                            DataCell(Text(e.toCity?.name ?? "")),
-                          ],
-                        ))
-                    .toList() ??
+            rows: result?.result.map((RouteModel e) {
+                  void onRowTap() {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => RouteDetailScreen(route: e),
+                      ),
+                    );
+                  }
+
+                  return DataRow(
+                    cells: [
+                      DataCell(Text(e.agency?.name ?? ""), onTap: onRowTap),
+                      DataCell(Text(e.fromCity?.name ?? ""), onTap: onRowTap),
+                      DataCell(Text(e.toCity?.name ?? ""), onTap: onRowTap),
+                    ],
+                  );
+                }).toList() ??
                 [],
           ),
         ),

@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:travel_admin/model/account/account.dart';
 import 'package:travel_admin/model/city/city.dart';
+import 'package:travel_admin/model/enums/user_type.dart';
 import 'package:travel_admin/model/search_result.dart';
 import 'package:travel_admin/providers/city_provider.dart';
 import 'package:travel_admin/screens/users/user_list_screen.dart';
@@ -145,7 +146,76 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                       }
                     },
                     child: Text("Save")),
-              )
+              ),
+              if (widget.user != null && widget.user?.userType != 1) ...[
+                ElevatedButton(
+                  onPressed: () {
+                    // Show delete confirmation dialog here
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text("Confirm Delete"),
+                          content: Text(
+                              "Are you sure you want to delete this user?"),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop(); // Close the dialog
+                              },
+                              child: Text("Cancel"),
+                            ),
+                            TextButton(
+                              onPressed: () async {
+                                // Add delete logic here
+                                try {
+                                  if (widget.user != null) {
+                                    await _accountProvider
+                                        .remove(widget.user!.id!);
+                                    Navigator.of(context)
+                                        .pop(); // Close the dialog
+                                    Navigator.of(context).pop();
+                                    await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => UserListScreen(),
+                                      ),
+                                    );
+                                  }
+                                } on Exception catch (e) {
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) =>
+                                        AlertDialog(
+                                      title: Text("Error"),
+                                      content: Text(e.toString()),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () =>
+                                              Navigator.pop(context),
+                                          child: Text("OK"),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }
+                                Navigator.of(context).pop(); // Close the dialog
+                              },
+                              child: Text("Delete"),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor:
+                        Colors.white, //change background color of button
+                    backgroundColor: Colors.red, // Set button color to red
+                  ),
+                  child: Text("Delete"),
+                ),
+              ],
             ],
           )
         ],

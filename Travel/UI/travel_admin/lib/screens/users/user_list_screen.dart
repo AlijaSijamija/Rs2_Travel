@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:travel_admin/model/account/account.dart';
 import 'package:travel_admin/model/search_result.dart';
 import 'package:travel_admin/providers/account_provider.dart';
+import 'package:travel_admin/screens/booked_routes/booked_routes_screen.dart';
+import 'package:travel_admin/screens/booked_trips/booked_trips_screen.dart';
 import 'package:travel_admin/screens/users/user_details_screen.dart';
 import 'package:travel_admin/widgets/master_screen.dart';
 
@@ -141,8 +143,8 @@ class _UserListScreenState extends State<UserListScreen> {
           color: Colors.white, // Background color for the table
           child: DataTable(
             columnSpacing: 24.0, // Adjust column spacing as needed
-            headingRowColor: WidgetStateColor.resolveWith(
-                (states) => Colors.indigo), // Header row color
+            headingRowColor:
+                MaterialStateColor.resolveWith((states) => Colors.indigo),
             columns: [
               DataColumn(
                 label: Text(
@@ -179,29 +181,62 @@ class _UserListScreenState extends State<UserListScreen> {
                       fontStyle: FontStyle.italic, color: Colors.white),
                 ),
               ),
+              DataColumn(
+                label: Text(
+                  'Actions',
+                  style: TextStyle(
+                      fontStyle: FontStyle.italic, color: Colors.white),
+                ),
+              ),
             ],
-            rows: result?.result
-                    .map((AccountModel e) => DataRow(
-                          onSelectChanged: (selected) => {
-                            if (selected == true)
-                              {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        UserDetailsScreen(user: e),
+            rows: result?.result.map((AccountModel e) {
+                  void onRowTap() {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => UserDetailsScreen(user: e),
+                      ),
+                    );
+                  }
+
+                  return DataRow(
+                    cells: [
+                      DataCell(Text(e.firstName ?? ""), onTap: onRowTap),
+                      DataCell(Text(e.lastName ?? ""), onTap: onRowTap),
+                      DataCell(Text(e.email ?? ""), onTap: onRowTap),
+                      DataCell(Text(e.phoneNumber ?? ""), onTap: onRowTap),
+                      DataCell(Text(e.role ?? ""), onTap: onRowTap),
+                      DataCell(
+                        e.role?.toLowerCase() == 'admin'
+                            ? const SizedBox.shrink()
+                            : Row(
+                                children: [
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.of(context)
+                                          .push(MaterialPageRoute(
+                                        builder: (context) =>
+                                            BookedTripsScreen(userId: e.id!),
+                                      ));
+                                    },
+                                    child: const Text("Booked trips"),
                                   ),
-                                ),
-                              }
-                          },
-                          cells: [
-                            DataCell(Text(e.firstName ?? "")),
-                            DataCell(Text(e.lastName ?? "")),
-                            DataCell(Text(e.email ?? "")),
-                            DataCell(Text(e.phoneNumber ?? "")),
-                            DataCell(Text(e.role ?? "")),
-                          ],
-                        ))
-                    .toList() ??
+                                  const SizedBox(width: 8),
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.of(context)
+                                          .push(MaterialPageRoute(
+                                        builder: (context) =>
+                                            BookedRoutesScreen(userId: e.id!),
+                                      ));
+                                    },
+                                    child: const Text("Route tickets"),
+                                  ),
+                                ],
+                              ),
+                      ),
+                    ],
+                  );
+                }).toList() ??
                 [],
           ),
         ),
