@@ -20,7 +20,7 @@ class AccountProvider extends BaseProvider<AccountModel> {
     var url = "${BaseProvider.baseUrl}Account/authenticate";
     var uri = Uri.parse(url);
     var jsonRequest = jsonEncode(body);
-    var headers = createHeaders();
+    var headers = {"Content-Type": "application/json"};
     var response = await http!.post(
       uri,
       headers: headers,
