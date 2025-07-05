@@ -501,6 +501,42 @@ SET IDENTITY_INSERT OrganizedTrips OFF;
         }
     };
 
+            var extraPassengerIds = new[]
+{
+    "f1a26e35-3be3-476b-a91b-2100b8adcb01",
+    "c7e55bcb-1f68-4f0a-9110-0adf1ec6e881",
+    "dd734edf-9d0c-4b8c-9c99-451c2e8619a2",
+    "abc72a10-8e6e-4536-91cd-d96c9fd19e50"
+};
+
+            int seatCounter = 7;
+
+            foreach (var id in extraPassengerIds)
+            {
+                tickets.Add(new TripTicket
+                {
+                    PassengerId = id,
+                    Price = 199.99,
+                    TripId = 1,
+                    AgencyId = 1,
+                    NumberOfPassengers = 1,
+                    CreatedAt = DateTime.Now,
+                    CreatedById = null,
+                    LastModified = DateTime.Now,
+                    TicketSeats = new List<TicketSeat>
+        {
+            new TicketSeat
+            {
+                SeatNumber = $"{seatCounter++}A",
+                PassengerName = "Auto Seed Passenger",
+                CreatedAt = DateTime.Now,
+                LastModified = DateTime.Now
+            }
+        }
+                });
+            }
+
+
             context.TripTickets.AddRange(tickets);
             context.SaveChanges();
         }
@@ -643,7 +679,47 @@ SET IDENTITY_INSERT SavedRoutes OFF;
                 new TicketSeat { SeatNumber = "10C", PassengerName = "Child Passenger", CreatedAt = DateTime.Now, LastModified = DateTime.Now }
             }
         }
+
+
     };
+            var extraPassengerIds = new[]
+{
+    "f1a26e35-3be3-476b-a91b-2100b8adcb01",
+    "c7e55bcb-1f68-4f0a-9110-0adf1ec6e881",
+    "dd734edf-9d0c-4b8c-9c99-451c2e8619a2",
+    "abc72a10-8e6e-4536-91cd-d96c9fd19e50"
+};
+
+            int seatCounter = 11;
+            var departure = new DateTime(2025, 7, 25, 9, 0, 0);
+            var arrival = new DateTime(2025, 7, 25, 12, 0, 0);
+
+            foreach (var id in extraPassengerIds)
+            {
+                tickets.Add(new RouteTicket
+                {
+                    PassengerId = id,
+                    Price = 35.0,
+                    RouteId = 1,
+                    AgencyId = 1,
+                    NumberOfAdultPassengers = 1,
+                    NumberOfChildPassengers = 0,
+                    DepartureDate = departure,
+                    ArrivalDate = arrival,
+                    CreatedAt = DateTime.Now,
+                    LastModified = DateTime.Now,
+                    TicketSeats = new List<TicketSeat>
+        {
+            new TicketSeat
+            {
+                SeatNumber = $"{seatCounter++}A",
+                PassengerName = "Auto Seed Passenger",
+                CreatedAt = DateTime.Now,
+                LastModified = DateTime.Now
+            }
+        }
+                });
+            }
 
             context.RouteTickets.AddRange(tickets);
             context.SaveChanges();
