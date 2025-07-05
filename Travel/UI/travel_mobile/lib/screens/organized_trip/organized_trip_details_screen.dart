@@ -1,30 +1,79 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import 'package:travel_mobile/providers/account_provider.dart';
+import 'package:travel_mobile/providers/organized_trip_provider.dart';
 import 'package:travel_mobile/screens/payment/payment_screen.dart';
 import 'package:travel_mobile/screens/seat_selection/seat_selection_screen.dart';
 import '../../model/organized_trip/organized_trip.dart';
 
-class OrganizedTripDetailScreen extends StatelessWidget {
+class OrganizedTripDetailScreen extends StatefulWidget {
   final OrganizedTripModel? trip;
 
   const OrganizedTripDetailScreen({super.key, this.trip});
+
+  @override
+  State<OrganizedTripDetailScreen> createState() =>
+      _OrganizedTripDetailScreenState();
+}
+
+class _OrganizedTripDetailScreenState extends State<OrganizedTripDetailScreen> {
+  List<OrganizedTripModel>? recommendedTrips;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRecommendations();
+  }
+
+  Future<void> _loadRecommendations() async {
+    if (widget.trip == null) {
+      setState(() {
+        isLoading = false;
+        recommendedTrips = [];
+      });
+      return;
+    }
+
+    try {
+      var currentUser = await context.read<AccountProvider>().getCurrentUser();
+      var request = {
+        "passengerId": currentUser.nameid,
+        "tripId": widget.trip!.id.toString()
+      };
+      final trips =
+          await context.read<OrganizedTripProvider>().recommended(request);
+
+      setState(() {
+        recommendedTrips = trips.result;
+        isLoading = false;
+      });
+    } catch (e) {
+      // Ako je greška, prikaži prazno ili poruku
+      setState(() {
+        recommendedTrips = [];
+        isLoading = false;
+      });
+    }
+  }
 
   String getFormattedDate(DateTime? date) {
     if (date == null) return '';
     return DateFormat('dd.MM.yyyy').format(date);
   }
 
+  final emojiIcons = {
+    'Accommodation': '🛏️',
+    'Transportation': '🚗',
+    'Breakfast': '🥐',
+    'Tour Guide': '🧭',
+    'Travel Insurance': '🛡️',
+  };
+
   @override
   Widget build(BuildContext context) {
-    final emojiIcons = {
-      'Accommodation': '🛏️',
-      'Transportation': '🚗',
-      'Breakfast': '🥐',
-      'Tour Guide': '🧭',
-      'Travel Insurance': '🛡️',
-    };
-
     final int randomImageIndex = Random().nextInt(6) + 1;
     final imageAsset = 'assets/images/trip$randomImageIndex.jpg';
 
@@ -80,15 +129,13 @@ class OrganizedTripDetailScreen extends StatelessWidget {
                   controller: scrollController,
                   children: [
                     Text(
-                      trip!.tripName,
+                      widget.trip!.tripName,
                       style: const TextStyle(
-                        fontSize: 26,
-                        fontWeight: FontWeight.bold,
-                      ),
+                          fontSize: 26, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      trip!.destination,
+                      widget.trip!.destination,
                       style: const TextStyle(fontSize: 18, color: Colors.grey),
                     ),
                     const SizedBox(height: 16),
@@ -97,7 +144,7 @@ class OrganizedTripDetailScreen extends StatelessWidget {
                         const Icon(Icons.calendar_month, color: Colors.blue),
                         const SizedBox(width: 8),
                         Text(
-                          "${getFormattedDate(trip!.startDate)} - ${getFormattedDate(trip!.endDate)}",
+                          "${getFormattedDate(widget.trip!.startDate)} - ${getFormattedDate(widget.trip!.endDate)}",
                           style: const TextStyle(fontSize: 16),
                         ),
                       ],
@@ -108,13 +155,13 @@ class OrganizedTripDetailScreen extends StatelessWidget {
                         const Icon(Icons.price_change, color: Colors.green),
                         const SizedBox(width: 8),
                         Text(
-                          "${trip!.price?.toStringAsFixed(2) ?? '--'} BAM",
+                          "${widget.trip!.price?.toStringAsFixed(2) ?? '--'} BAM",
                           style: const TextStyle(fontSize: 16),
                         ),
                         const Spacer(),
                         const Icon(Icons.event_seat),
                         const SizedBox(width: 4),
-                        Text("${trip!.availableSeats} seats left"),
+                        Text("${widget.trip!.availableSeats} seats left"),
                       ],
                     ),
                     const SizedBox(height: 16),
@@ -124,7 +171,7 @@ class OrganizedTripDetailScreen extends StatelessWidget {
                           TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8),
-                    Text(trip!.description),
+                    Text(widget.trip!.description),
                     const SizedBox(height: 16),
                     const Text(
                       "Included Services",
@@ -135,7 +182,7 @@ class OrganizedTripDetailScreen extends StatelessWidget {
                     Wrap(
                       spacing: 10,
                       runSpacing: 10,
-                      children: trip!.includedServices.map((s) {
+                      children: widget.trip!.includedServices.map((s) {
                         return Chip(
                           avatar: Text(
                             emojiIcons[s.name] ?? '✔️',
@@ -156,9 +203,9 @@ class OrganizedTripDetailScreen extends StatelessWidget {
                           TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 6),
-                    Text(trip!.contactInfo),
+                    Text(widget.trip!.contactInfo),
                     const SizedBox(height: 30),
-                    trip!.availableSeats == 0
+                    widget.trip!.availableSeats == 0
                         ? Container(
                             padding: const EdgeInsets.all(16),
                             margin: const EdgeInsets.only(top: 12),
@@ -190,7 +237,7 @@ class OrganizedTripDetailScreen extends StatelessWidget {
                                 MaterialPageRoute(
                                   builder: (context) =>
                                       PassengerSeatSelectionView(
-                                    organizedTrip: trip,
+                                    organizedTrip: widget.trip,
                                   ),
                                 ),
                               );
@@ -204,6 +251,59 @@ class OrganizedTripDetailScreen extends StatelessWidget {
                               ),
                             ),
                           ),
+
+                    // --- OVDJE DODAJEMO PREPORUKE ---
+                    if (isLoading)
+                      const Padding(
+                        padding: EdgeInsets.only(top: 30),
+                        child: Center(child: CircularProgressIndicator()),
+                      )
+                    else if (recommendedTrips != null &&
+                        recommendedTrips!.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 30),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              "Recommended for you based on your previous trips",
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            ...recommendedTrips!.map((recTrip) {
+                              return Card(
+                                margin: const EdgeInsets.only(bottom: 12),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: ListTile(
+                                  title: Text(recTrip.tripName),
+                                  subtitle: Text(recTrip.destination),
+                                  trailing: Text(
+                                    "${getFormattedDate(recTrip.startDate)} - ${getFormattedDate(recTrip.endDate)}",
+                                    style: const TextStyle(
+                                        fontSize: 12, color: Colors.grey),
+                                  ),
+                                  onTap: () {
+                                    // Navigacija na detalje preporučenog putovanja
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (_) =>
+                                            OrganizedTripDetailScreen(
+                                          trip: recTrip,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              );
+                            }).toList(),
+                          ],
+                        ),
+                      ),
                   ],
                 ),
               );

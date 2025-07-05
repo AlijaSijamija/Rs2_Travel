@@ -39,7 +39,7 @@ namespace Travel.Services.Services
         private string GenerateAccessToken(User user, string adminId = null, string adminUserName = null)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_secret);
+            var key = Encoding.UTF8.GetBytes(_secret);
             var tokenDescrtiptor = new SecurityTokenDescriptor();
             var claims = new ClaimsIdentity();
 

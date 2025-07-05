@@ -44,6 +44,24 @@ services:
       - etravel-sql
       - rabbitMQ
 
+  dodatni_api:
+    restart: unless-stopped
+    build:
+      context: ../TravelDodatni
+    environment:
+      - ConnectionStrings:DefaultConnection=Server=etravel-sql,1433;Database=IB210388;User=sa;Password=QWElkj132!;ConnectRetryCount=0;TrustServerCertificate=True
+      - ASPNETCORE_ENVIRONMENT=Development
+      - RABBITMQ_HOST=rabbitMQ
+      - RABBITMQ_USERNAME=guest
+      - RABBITMQ_PASSWORD=guest
+      - RABBITMQ_VIRTUALHOST=/
+    ports:
+      - 7005:7005
+    networks:
+      - etravel2022
+    depends_on:
+      - rabbitMQ
+
 networks:
   etravel2022:
     driver: bridge

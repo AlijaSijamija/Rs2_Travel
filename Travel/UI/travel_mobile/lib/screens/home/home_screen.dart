@@ -31,7 +31,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
       var currentUser = await context.read<AccountProvider>().getCurrentUser();
       currentUserId = currentUser.nameid;
 
-      var allNotifications = await _notificationProvider.get();
+      var allNotifications = await _notificationProvider.getData();
       var readNotifications =
           await _notificationProvider.getReadNotifications(currentUserId!);
 

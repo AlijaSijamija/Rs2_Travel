@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'package:travel_mobile/model/notification/notification.dart';
+import 'package:travel_mobile/model/search_result.dart';
+import 'package:travel_mobile/utils/util.dart';
 import 'base_provider.dart';
 
 class NotificationProvider extends BaseProvider<NotificationModel> {
@@ -40,5 +42,24 @@ class NotificationProvider extends BaseProvider<NotificationModel> {
 
     if (isValidResponse(response)) {
     } else {}
+  }
+
+  Future<SearchResult<NotificationModel>> getData() async {
+    var url = "http://10.0.2.2:7005/api/Notification";
+
+    var uri = Uri.parse(url);
+    var headers = createAuthorizationHeaders();
+    var response = await http!.get(uri, headers: headers);
+    if (isValidResponse(response)) {
+      var data = jsonDecode(response.body);
+      var result = SearchResult<NotificationModel>();
+      for (var item in data) {
+        result.result.add(fromJson(item));
+      }
+      // Map each item to NotificationModel
+      return result;
+    } else {
+      throw Exception("Unknown error");
+    }
   }
 }
