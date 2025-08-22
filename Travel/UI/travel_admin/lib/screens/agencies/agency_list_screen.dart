@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:travel_admin/model/agency/agency.dart';
@@ -21,7 +23,7 @@ class _AgencyListScreenState extends State<AgencyListScreen> {
 
   int currentPage = 1;
   final int pageSize = 10; // koliko elemenata po stranici
-
+  Timer? _debounce;
   @override
   void initState() {
     super.initState();
@@ -70,14 +72,14 @@ class _AgencyListScreenState extends State<AgencyListScreen> {
             child: TextField(
               decoration: InputDecoration(labelText: "Name"),
               controller: _nameController,
+              onChanged: (value) {
+                if (_debounce?.isActive ?? false) _debounce!.cancel();
+                _debounce = Timer(Duration(milliseconds: 500), () async {
+                  currentPage = 1;
+                  await _loadData(page: currentPage);
+                });
+              },
             ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              currentPage = 1; // resetuj na prvu stranicu prilikom pretrage
-              _loadData(page: currentPage);
-            },
-            child: Text("Search"),
           ),
           SizedBox(width: 8),
           ElevatedButton(
@@ -93,6 +95,12 @@ class _AgencyListScreenState extends State<AgencyListScreen> {
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    super.dispose();
   }
 
   Widget _buildDataListView() {

@@ -6,9 +6,9 @@ namespace Travel.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CityController : BaseCRUDController<Travel.Models.City.City, Travel.Models.Filters.BaseSearchObject, Travel.Models.City.City, Travel.Models.City.City, long>
+    public class CityController : BaseCRUDController<Travel.Models.City.City, Travel.Models.Filters.CitySearchObject, Travel.Models.City.CityReguest, Travel.Models.City.CityReguest, long>
     {
-        public CityController(ILogger<BaseController<Travel.Models.City.City, Travel.Models.Filters.BaseSearchObject, long>> logger, ICityService service) : base(logger, service)
+        public CityController(ILogger<BaseController<Travel.Models.City.City, Travel.Models.Filters.CitySearchObject, long>> logger, ICityService service) : base(logger, service)
         {
 
         }

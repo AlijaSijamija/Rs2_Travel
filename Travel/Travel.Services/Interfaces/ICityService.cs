@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Travel.Services.Interfaces
 {
-    public interface ICityService : ICRUDService<Models.City.City, Models.Filters.BaseSearchObject, City, City, long>
+    public interface ICityService : ICRUDService<Models.City.City, Models.Filters.CitySearchObject, CityReguest, CityReguest, long>
     {
     }
 }

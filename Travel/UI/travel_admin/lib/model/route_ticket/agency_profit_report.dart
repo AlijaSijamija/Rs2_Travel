@@ -9,7 +9,11 @@ class AgencyProfitReportModel {
   int? agencyId;
   String? agencyName;
   double? totalProfit;
-  AgencyProfitReportModel(this.agencyId, this.agencyName, this.totalProfit);
+  int? ticketsSold;
+  double? totalRevenue;
+  double? totalCost;
+  AgencyProfitReportModel(this.agencyId, this.agencyName, this.totalProfit,
+      this.ticketsSold, this.totalCost, this.totalRevenue);
 
   /// A necessary factory constructor for creating a new User instance
   /// from a map. Pass the map to the generated `_$UserFromJson()` constructor.

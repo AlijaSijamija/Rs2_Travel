@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:travel_admin/model/notification/notification.dart';
@@ -22,7 +24,7 @@ class _NotificationListScreenState extends State<NotificationListScreen> {
   SearchResult<NotificationModel>? result;
   List<SectionModel>? sections;
   String? selectedSectionId;
-
+  Timer? _debounce;
   TextEditingController _headingController = TextEditingController();
 
   @override
@@ -79,9 +81,15 @@ class _NotificationListScreenState extends State<NotificationListScreen> {
             child: TextField(
               decoration: InputDecoration(labelText: "Heading"),
               controller: _headingController,
+              onChanged: (value) {
+                if (_debounce?.isActive ?? false) _debounce!.cancel();
+                _debounce = Timer(Duration(milliseconds: 500), () async {
+                  await _loadData();
+                });
+              },
             ),
           ),
-          SizedBox(width: 12),
+          SizedBox(width: 8),
           DropdownButton<String>(
             value: selectedSectionId,
             hint: Text("Select Section"),
@@ -104,13 +112,6 @@ class _NotificationListScreenState extends State<NotificationListScreen> {
               ),
             ],
           ),
-          SizedBox(width: 12),
-          ElevatedButton(
-            onPressed: () {
-              _loadData();
-            },
-            child: Text("Search"),
-          ),
           SizedBox(width: 8),
           ElevatedButton(
             onPressed: () {
@@ -126,6 +127,12 @@ class _NotificationListScreenState extends State<NotificationListScreen> {
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    super.dispose();
   }
 
   Widget _buildDataListView() {

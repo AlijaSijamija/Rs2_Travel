@@ -19,9 +19,11 @@ namespace Travel.Services.MappingProfile
         {
 
             CreateMap<Database.City, City>();
+            CreateMap<CityReguest, Database.City>();
             CreateMap<Database.Notification, Notification>();
             CreateMap<NotificationRequest, Database.Notification>();
             CreateMap<Database.Section, Section>();
+            CreateMap<SectionReguest, Database.Section>();
             CreateMap<Database.User, Models.Account.UserResponse>();
             CreateMap<Database.Agency, Agency>();
             CreateMap<AgencyRequest, Database.Agency>();

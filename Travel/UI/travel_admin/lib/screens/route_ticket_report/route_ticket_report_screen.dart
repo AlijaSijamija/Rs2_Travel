@@ -36,6 +36,7 @@ class _AgencyReportScreenState extends State<AgencyReportScreen> {
   SearchResult<AgencyModel>? _agencyResult;
   int? _selectedAgencyId;
   String? selectedYear;
+
   List<DropdownItem> dropdownItems = [
     DropdownItem(2025, '2025'),
     DropdownItem(2024, '2024'),
@@ -45,6 +46,14 @@ class _AgencyReportScreenState extends State<AgencyReportScreen> {
     DropdownItem(2020, '2020'),
     DropdownItem(2019, '2019'),
   ];
+
+  List<DropdownItem> busTypes = [
+    DropdownItem(1, 'Mini'),
+    DropdownItem(2, 'Midi'),
+    DropdownItem(3, 'Standard'),
+    DropdownItem(4, 'Luxury')
+  ];
+  List<int> selectedBusTypes = [];
 
   @override
   void initState() {
@@ -66,31 +75,41 @@ class _AgencyReportScreenState extends State<AgencyReportScreen> {
     });
   }
 
+  Map<String, dynamic> _buildFilter() {
+    return {
+      'year': selectedYear,
+      'agencyId': _selectedAgencyId,
+      'busTypes': selectedBusTypes.isEmpty ? null : selectedBusTypes,
+    };
+  }
+
   Future<void> _onAgencySelected(int? agencyId) async {
-    var filter = {'year': selectedYear, "agencyId": agencyId};
+    final filter = _buildFilter();
+    filter['agencyId'] = agencyId;
 
     if (agencyId == null) {
-      filter['agencyId'] = null;
+      // Svi -> učitavamo profite po agencijama
+      final agencyProfits =
+          await _ticketProvider.getAgencyProfitReport(filter: filter);
+      setState(() {
+        _selectedAgencyId = null;
+        _agencyProfits = agencyProfits;
+        _routeProfits = []; // očisti rute
+      });
+    } else {
+      final routeProfits =
+          await _ticketProvider.getRouteProfitReport(filter: filter);
+      setState(() {
+        _selectedAgencyId = agencyId;
+        _routeProfits = routeProfits;
+        _agencyProfits = []; // očisti agencije
+      });
     }
-    final routeProfits =
-        await _ticketProvider.getRouteProfitReport(filter: filter);
-    setState(() {
-      _selectedAgencyId = agencyId;
-      _routeProfits = routeProfits;
-    });
   }
 
   Future<void> _generateAndDownloadPdf() async {
     try {
-      var filter = {
-        'year': selectedYear,
-        'agencyId': _selectedAgencyId,
-      };
-
-      if (_selectedAgencyId == null) {
-        filter['agencyId'] = null;
-      }
-
+      final filter = _buildFilter();
       final pdfData = await _ticketProvider.getPdfData(filter: filter);
       final pdf = pw.Document();
 
@@ -130,94 +149,68 @@ class _AgencyReportScreenState extends State<AgencyReportScreen> {
         ),
       );
 
-      if (_selectedAgencyId == null) {
-        // Flatten all data into one table — combine all agencies into one list of rows
-        final allDataRows = pdfData.map((item) {
-          // Assuming item.name is agency name and item.price is price
-          // If you want agency name as a separate column, add it here
-          return [
-            item.name ?? 'Unknown',
-            item.price?.toStringAsFixed(2) ?? '0.00',
-          ];
-        }).toList();
+      // Payment details per line
+      pdf.addPage(
+        pw.Page(
+          pageFormat: PdfPageFormat.a4,
+          build: (context) {
+            final headers = [
+              'Line / Route',
+              'Tickets Sold',
+              'Income (BAM)',
+              'Expense (BAM)',
+              'Profit (BAM)'
+            ];
+            final dataRows = pdfData.map((item) {
+              return [
+                item.name ?? 'Unknown',
+                item.ticketsSold?.toString() ?? '0',
+                item.income?.toStringAsFixed(2) ?? '0.00',
+                item.expense?.toStringAsFixed(2) ?? '0.00',
+                item.profit?.toStringAsFixed(2) ?? '0.00',
+              ];
+            }).toList();
 
-        pdf.addPage(
-          pw.Page(
-            pageFormat: PdfPageFormat.a4,
-            build: (context) {
-              return pw.Column(
-                crossAxisAlignment: pw.CrossAxisAlignment.start,
-                children: [
-                  pw.Text('Payment Details (All Agencies)',
-                      style: pw.TextStyle(
-                          fontSize: 20, fontWeight: pw.FontWeight.bold)),
-                  pw.SizedBox(height: 10),
-                  pw.Table.fromTextArray(
-                    border: null,
-                    headers: ['Agency Name', 'Price (BAM)'],
-                    data: allDataRows,
-                    headerStyle: pw.TextStyle(
-                        fontWeight: pw.FontWeight.bold, color: PdfColors.white),
-                    headerDecoration: pw.BoxDecoration(color: PdfColors.blue),
-                    cellAlignment: pw.Alignment.centerLeft,
-                    cellHeight: 30,
-                    cellAlignments: {
-                      0: pw.Alignment.centerLeft,
-                      1: pw.Alignment.centerRight,
-                    },
-                  ),
-                ],
-              );
-            },
-          ),
-        );
-      } else {
-        pdf.addPage(
-          pw.Page(
-            pageFormat: PdfPageFormat.a4,
-            build: (context) {
-              return pw.Column(
-                crossAxisAlignment: pw.CrossAxisAlignment.start,
-                children: [
-                  pw.Text('Payment Details',
-                      style: pw.TextStyle(
-                          fontSize: 24, fontWeight: pw.FontWeight.bold)),
-                  pw.SizedBox(height: 12),
-                  pw.Table.fromTextArray(
-                    border: null,
-                    headers: ['Name', 'Price (BAM)'],
-                    data: pdfData.map((item) {
-                      return [item.name, item.price?.toStringAsFixed(2)];
-                    }).toList(),
-                    headerStyle: pw.TextStyle(
-                        fontWeight: pw.FontWeight.bold, color: PdfColors.white),
-                    headerDecoration: pw.BoxDecoration(color: PdfColors.blue),
-                    cellAlignment: pw.Alignment.centerLeft,
-                    cellHeight: 30,
-                    cellAlignments: {
-                      0: pw.Alignment.centerLeft,
-                      1: pw.Alignment.centerRight,
-                    },
-                  ),
-                ],
-              );
-            },
-          ),
-        );
-      }
+            return pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Text(
+                    _selectedAgencyId == null
+                        ? 'Payment Details (All Agencies)'
+                        : 'Payment Details',
+                    style: pw.TextStyle(
+                        fontSize: 20, fontWeight: pw.FontWeight.bold)),
+                pw.SizedBox(height: 10),
+                pw.Table.fromTextArray(
+                  border: null,
+                  headers: headers,
+                  data: dataRows,
+                  headerStyle: pw.TextStyle(
+                      fontWeight: pw.FontWeight.bold, color: PdfColors.white),
+                  headerDecoration: pw.BoxDecoration(color: PdfColors.blue),
+                  cellAlignment: pw.Alignment.centerLeft,
+                  cellHeight: 30,
+                  cellAlignments: {
+                    0: pw.Alignment.centerLeft,
+                    1: pw.Alignment.centerRight,
+                    2: pw.Alignment.centerRight,
+                    3: pw.Alignment.centerRight,
+                    4: pw.Alignment.centerRight,
+                  },
+                ),
+              ],
+            );
+          },
+        ),
+      );
 
       final Uint8List pdfFile = await pdf.save();
       final outputDir = await getTemporaryDirectory();
       final outputFile = File('${outputDir.path}/report.pdf');
       await outputFile.writeAsBytes(pdfFile);
 
-      // Open the PDF file using the `open_file` package
       await OpenFile.open(outputFile.path);
-      await FileSaver.instance.saveFile(
-        'Report',
-        pdfFile,
-        'pdf',
-      );
+      await FileSaver.instance.saveFile('Report', pdfFile, 'pdf');
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to generate PDF: $e')),
@@ -240,7 +233,7 @@ class _AgencyReportScreenState extends State<AgencyReportScreen> {
               },
               items: [
                 DropdownMenuItem<int>(
-                  value: null, // All agencies
+                  value: null,
                   child: Text('All agencies'),
                 ),
                 ...?_agencyResult?.result?.map((item) {
@@ -263,7 +256,7 @@ class _AgencyReportScreenState extends State<AgencyReportScreen> {
                 });
 
                 if (_selectedAgencyId == null) {
-                  var filter = {'year': selectedYear};
+                  var filter = _buildFilter();
                   final agencyProfits = await _ticketProvider
                       .getAgencyProfitReport(filter: filter);
                   setState(() {
@@ -283,6 +276,30 @@ class _AgencyReportScreenState extends State<AgencyReportScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildBusTypeCheckboxes() {
+    return Wrap(
+      spacing: 8,
+      children: busTypes.map((bus) {
+        return FilterChip(
+          label: Text(bus.displayText),
+          selected: selectedBusTypes.contains(bus.value),
+          onSelected: (selected) async {
+            setState(() {
+              if (selected) {
+                selectedBusTypes.add(bus.value);
+              } else {
+                selectedBusTypes.remove(bus.value);
+              }
+            });
+
+            // ponovo učitaj podatke (agencije ili rute zavisno šta je odabrano)
+            await _onAgencySelected(_selectedAgencyId);
+          },
+        );
+      }).toList(),
     );
   }
 
@@ -454,17 +471,21 @@ class _AgencyReportScreenState extends State<AgencyReportScreen> {
   @override
   Widget build(BuildContext context) {
     return MasterScreenWidget(
-      title_widget: Text("Report"),
+      title_widget: const Text("Report"),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
             _buildDropdown(),
             const SizedBox(height: 8),
+            _buildBusTypeCheckboxes(),
+            const SizedBox(height: 8),
             _buildDownloadButton(),
             const SizedBox(height: 16),
             Expanded(
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start, // <<< bitno
                 children: [
                   Expanded(child: _buildChart()),
                   const SizedBox(height: 12),

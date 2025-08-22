@@ -12,6 +12,9 @@ AgencyProfitReportModel _$AgencyProfitReportModelFromJson(
       (json['agencyId'] as num?)?.toInt(),
       json['agencyName'] as String?,
       (json['totalProfit'] as num?)?.toDouble(),
+      (json['ticketsSold'] as num?)?.toInt(),
+      (json['totalCost'] as num?)?.toDouble(),
+      (json['totalRevenue'] as num?)?.toDouble(),
     );
 
 Map<String, dynamic> _$AgencyProfitReportModelToJson(
@@ -20,4 +23,7 @@ Map<String, dynamic> _$AgencyProfitReportModelToJson(
       'agencyId': instance.agencyId,
       'agencyName': instance.agencyName,
       'totalProfit': instance.totalProfit,
+      'ticketsSold': instance.ticketsSold,
+      'totalRevenue': instance.totalRevenue,
+      'totalCost': instance.totalCost,
     };

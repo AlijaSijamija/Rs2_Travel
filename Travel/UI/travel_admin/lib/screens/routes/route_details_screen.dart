@@ -23,6 +23,13 @@ class RouteDetailScreen extends StatefulWidget {
   State<RouteDetailScreen> createState() => _RouteDetailScreenState();
 }
 
+class DropdownItem {
+  final int? value;
+  final String displayText;
+
+  DropdownItem(this.value, this.displayText);
+}
+
 class _RouteDetailScreenState extends State<RouteDetailScreen> {
   final _formKey = GlobalKey<FormBuilderState>();
   Map<String, dynamic> _initialValue = {};
@@ -34,6 +41,12 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
   SearchResult<CityModel>? citiesResult;
   bool isLoading = true;
   dynamic currentUser = null;
+  List<DropdownItem> busTypes = [
+    DropdownItem(1, 'Mini'),
+    DropdownItem(2, 'Midi'),
+    DropdownItem(3, 'Standard'),
+    DropdownItem(4, 'Luxury')
+  ];
   @override
   void initState() {
     // TODO: implement initState
@@ -45,12 +58,13 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
       'adultPrice': widget.route?.adultPrice.toString(),
       'toCityId': widget.route?.toCityId.toString(),
       'fromCityId': widget.route?.fromCityId.toString(),
-      'travelTime': widget.route?.travelTime.toString(),
+      'travelTime': parseTravelTime(widget.route?.travelTime),
       'agencyId': widget.route?.agencyId.toString(),
       'arrivalTime': parseTimeSpanToDateTime(widget.route?.arrivalTime),
       'departureTime': parseTimeSpanToDateTime(widget.route?.departureTime),
       'validFrom': widget.route?.validFrom,
       'validTo': widget.route?.validTo,
+      'busType': widget.route?.busType.toString()
     };
     _routeProvider = context.read<RouteProvider>();
     _agencyProvider = context.read<AgencyProvider>();
@@ -107,6 +121,7 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
                           'toCityId': int.tryParse(formValue['toCityId']),
                           'validFrom': formValue['validFrom'].toIso8601String(),
                           'validTo': formValue['validTo'].toIso8601String(),
+                          'busType': int.tryParse(formValue['busType']),
                         };
                         if (widget.route == null) {
                           await _routeProvider.insert(request);
@@ -451,27 +466,27 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
                           SizedBox(width: 10),
                           Expanded(
                             child: FormBuilderTextField(
+                              name: "travelTime",
                               decoration: InputDecoration(
                                 labelText: "Travel time",
                                 hintText: "HH:mm",
                               ),
-                              name: "travelTime",
+                              keyboardType: TextInputType.number,
+                              inputFormatters: <TextInputFormatter>[
+                                FilteringTextInputFormatter.digitsOnly,
+                                LengthLimitingTextInputFormatter(4),
+                                _TimeInputFormatter(), // custom formatter
+                              ],
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
                                   return 'Travel time is required';
                                 } else if (!RegExp(
-                                        r'^(0?[0-9]|[1-9][0-9]):[0-5][0-9]$')
+                                        r'^(0?[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$')
                                     .hasMatch(value)) {
-                                  return 'Enter a valid time in HH:mm format (hours up to 99)';
+                                  return 'Enter a valid time in HH:mm format';
                                 }
                                 return null;
                               },
-                              keyboardType: TextInputType.text,
-                              inputFormatters: <TextInputFormatter>[
-                                FilteringTextInputFormatter.allow(
-                                    RegExp(r'[0-9:]')),
-                                LengthLimitingTextInputFormatter(5),
-                              ],
                             ),
                           ),
                         ],
@@ -581,6 +596,37 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
                               ],
                             ),
                           ),
+                          SizedBox(width: 8),
+                          Expanded(
+                            child: FormBuilderDropdown<String>(
+                              name: 'busType',
+                              decoration: InputDecoration(
+                                labelText: 'Bus type',
+                                suffix: IconButton(
+                                  icon: const Icon(Icons.close),
+                                  onPressed: () {
+                                    _formKey.currentState!.fields['busType']
+                                        ?.reset();
+                                  },
+                                ),
+                                hintText: 'Select bus type',
+                              ),
+                              items: busTypes
+                                      .map(
+                                        (item) => DropdownMenuItem(
+                                          alignment:
+                                              AlignmentDirectional.center,
+                                          value: item.value.toString(),
+                                          child: Text(item.displayText),
+                                        ),
+                                      )
+                                      .toList() ??
+                                  [],
+                              validator: FormBuilderValidators.required(
+                                errorText: 'Bus type is required',
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                       SizedBox(width: 10),
@@ -611,4 +657,40 @@ DateTime? parseTimeSpanToDateTime(String? timeSpan) {
   int seconds = int.parse(parts[2]);
 
   return DateTime(0, 1, 1, hours, minutes, seconds);
+}
+
+class _TimeInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    String digitsOnly = newValue.text.replaceAll(RegExp(r'[^0-9]'), '');
+    String newText = '';
+
+    if (digitsOnly.length >= 3) {
+      newText = digitsOnly.substring(0, 2) + ':' + digitsOnly.substring(2);
+    } else {
+      newText = digitsOnly;
+    }
+
+    if (newText.length > 5) {
+      newText = newText.substring(0, 5);
+    }
+
+    return TextEditingValue(
+      text: newText,
+      selection: TextSelection.collapsed(offset: newText.length),
+    );
+  }
+}
+
+String parseTravelTime(String? travelTime) {
+  if (travelTime == null) return '';
+  final regex = RegExp(r'(\d+)h (\d+)m');
+  final match = regex.firstMatch(travelTime);
+  if (match != null) {
+    final hours = match.group(1)!.padLeft(2, '0');
+    final minutes = match.group(2)!.padLeft(2, '0');
+    return '$hours:$minutes';
+  }
+  return travelTime; // fallback
 }

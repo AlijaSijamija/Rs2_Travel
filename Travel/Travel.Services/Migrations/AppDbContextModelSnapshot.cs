@@ -339,6 +339,9 @@ namespace Travel.Services.Migrations
                     b.Property<int>("AvailableSeats")
                         .HasColumnType("int");
 
+                    b.Property<int>("BusType")
+                        .HasColumnType("int");
+
                     b.Property<double>("ChildPrice")
                         .HasColumnType("float");
 

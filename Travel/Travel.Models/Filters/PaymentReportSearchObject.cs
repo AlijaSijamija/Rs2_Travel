@@ -10,5 +10,6 @@ namespace Travel.Models.Filters
     {
         public long? AgencyId { get; set; }
         public int? Year { get; set; }
+        public List<int>? BusTypes { get; set; }
     }
 }

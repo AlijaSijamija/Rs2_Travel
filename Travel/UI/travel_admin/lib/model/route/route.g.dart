@@ -33,6 +33,7 @@ RouteModel _$RouteModelFromJson(Map<String, dynamic> json) => RouteModel(
       json['validTo'] == null
           ? null
           : DateTime.parse(json['validTo'] as String),
+      (json['busType'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$RouteModelToJson(RouteModel instance) =>
@@ -49,6 +50,7 @@ Map<String, dynamic> _$RouteModelToJson(RouteModel instance) =>
       'travelTime': instance.travelTime,
       'departureTime': instance.departureTime,
       'arrivalTime': instance.arrivalTime,
+      'busType': instance.busType,
       'agencyId': instance.agencyId,
       'agency': instance.agency,
       'validFrom': instance.validFrom?.toIso8601String(),

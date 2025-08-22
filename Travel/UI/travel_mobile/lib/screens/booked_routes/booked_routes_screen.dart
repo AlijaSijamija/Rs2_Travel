@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:travel_mobile/model/city/city.dart';
 import 'package:travel_mobile/providers/account_provider.dart';
+import 'package:travel_mobile/providers/city_provider.dart';
 import 'package:travel_mobile/providers/route_ticket.dart';
 import 'package:travel_mobile/widgets/master_screen.dart';
 
@@ -20,10 +22,10 @@ class _BookedRoutesScreenState extends State<BookedRoutesScreen>
   bool isLoading = false;
   late TabController _tabController;
   String? currentUserId;
-
-  String cityFromFilter = '';
-  String cityToFilter = '';
-
+  List<CityModel> cities = [];
+  late CityProvider _cityProvider;
+  int? selectedFromCityId;
+  int? selectedToCityId;
   final DateFormat dateFormatter = DateFormat('yyyy-MM-dd');
 
   @override
@@ -31,7 +33,16 @@ class _BookedRoutesScreenState extends State<BookedRoutesScreen>
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(_handleTabChange);
+    _cityProvider = context.read<CityProvider>();
+    _loadCities();
     _loadCurrentUserAndRoutes();
+  }
+
+  Future<void> _loadCities() async {
+    final response = await _cityProvider.get();
+    setState(() {
+      cities = response.result;
+    });
   }
 
   Future<void> _loadCurrentUserAndRoutes() async {
@@ -57,16 +68,14 @@ class _BookedRoutesScreenState extends State<BookedRoutesScreen>
   }
 
   void _applyRouteFilter() {
-    final fromQuery = cityFromFilter.toLowerCase();
-    final toQuery = cityToFilter.toLowerCase();
-
     final filtered = allBookedRoutes.where((route) {
-      final fromCity =
-          (route['fromCity']?['name'] ?? '').toString().toLowerCase();
-      final toCity = (route['toCity']?['name'] ?? '').toString().toLowerCase();
+      final fromCityId = route['fromCity']?['id'] as int?;
+      final toCityId = route['toCity']?['id'] as int?;
 
-      final matchesFrom = fromQuery.isEmpty || fromCity.contains(fromQuery);
-      final matchesTo = toQuery.isEmpty || toCity.contains(toQuery);
+      final matchesFrom =
+          selectedFromCityId == null || fromCityId == selectedFromCityId;
+      final matchesTo =
+          selectedToCityId == null || toCityId == selectedToCityId;
 
       return matchesFrom && matchesTo;
     }).toList();
@@ -80,6 +89,8 @@ class _BookedRoutesScreenState extends State<BookedRoutesScreen>
     if (_tabController.indexIsChanging) return;
     setState(() {
       passed = _tabController.index == 1;
+      selectedFromCityId = null;
+      selectedToCityId = null;
     });
     loadRoutes();
   }
@@ -113,20 +124,42 @@ class _BookedRoutesScreenState extends State<BookedRoutesScreen>
                         padding: const EdgeInsets.all(16.0),
                         child: Column(
                           children: [
-                            TextField(
+                            DropdownButtonFormField<int?>(
+                              value: selectedFromCityId,
                               decoration:
                                   const InputDecoration(labelText: "From City"),
+                              items: [
+                                const DropdownMenuItem(
+                                  value: null,
+                                  child: Text("All"),
+                                ),
+                                ...cities.map((city) => DropdownMenuItem(
+                                      value: city.id,
+                                      child: Text(city.name ?? ""),
+                                    )),
+                              ],
                               onChanged: (value) {
-                                setState(() => cityFromFilter = value);
+                                setState(() => selectedFromCityId = value);
                                 _applyRouteFilter();
                               },
                             ),
                             const SizedBox(height: 12),
-                            TextField(
+                            DropdownButtonFormField<int?>(
+                              value: selectedToCityId,
                               decoration:
                                   const InputDecoration(labelText: "To City"),
+                              items: [
+                                const DropdownMenuItem(
+                                  value: null,
+                                  child: Text("All"),
+                                ),
+                                ...cities.map((city) => DropdownMenuItem(
+                                      value: city.id,
+                                      child: Text(city.name ?? ""),
+                                    )),
+                              ],
                               onChanged: (value) {
-                                setState(() => cityToFilter = value);
+                                setState(() => selectedToCityId = value);
                                 _applyRouteFilter();
                               },
                             ),
