@@ -2,23 +2,23 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:travel_admin/model/agency/agency.dart';
 import 'package:travel_admin/model/search_result.dart';
-import 'package:travel_admin/providers/agency_provider.dart';
-import 'package:travel_admin/screens/agencies/agency_details_screen.dart';
+import 'package:travel_admin/model/section/section.dart';
+import 'package:travel_admin/providers/section_provider.dart';
+import 'package:travel_admin/screens/sections/section_details_screen.dart';
 import 'package:travel_admin/widgets/master_screen.dart';
 
-class AgencyListScreen extends StatefulWidget {
-  const AgencyListScreen({super.key});
+class SectionListScreen extends StatefulWidget {
+  const SectionListScreen({super.key});
 
   @override
-  State<AgencyListScreen> createState() => _AgencyListScreenState();
+  State<SectionListScreen> createState() => _SectionListScreenState();
   void functionThatSetsTheState() {}
 }
 
-class _AgencyListScreenState extends State<AgencyListScreen> {
-  late AgencyProvider _agencyProvider;
-  SearchResult<AgencyModel>? result;
+class _SectionListScreenState extends State<SectionListScreen> {
+  late SectionProvider _sectionProvider;
+  SearchResult<SectionModel>? result;
   TextEditingController _nameController = TextEditingController();
 
   int currentPage = 1;
@@ -27,7 +27,7 @@ class _AgencyListScreenState extends State<AgencyListScreen> {
   @override
   void initState() {
     super.initState();
-    _agencyProvider = context.read<AgencyProvider>();
+    _sectionProvider = context.read<SectionProvider>();
     _loadData();
   }
 
@@ -38,7 +38,7 @@ class _AgencyListScreenState extends State<AgencyListScreen> {
       'pageSize': pageSize,
     };
 
-    var data = await _agencyProvider.get(filter: filter);
+    var data = await _sectionProvider.get(filter: filter);
 
     setState(() {
       result = data;
@@ -49,7 +49,7 @@ class _AgencyListScreenState extends State<AgencyListScreen> {
   @override
   Widget build(BuildContext context) {
     return MasterScreenWidget(
-      title_widget: Text("Agency list"),
+      title_widget: Text("Section list"),
       child: Container(
         child: Column(
           children: [
@@ -86,7 +86,7 @@ class _AgencyListScreenState extends State<AgencyListScreen> {
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => AgencyDetailScreen(agencyModel: null),
+                  builder: (context) => SectionDetailScreen(sectionModel: null),
                 ),
               );
             },
@@ -122,27 +122,13 @@ class _AgencyListScreenState extends State<AgencyListScreen> {
                       fontStyle: FontStyle.italic, color: Colors.white),
                 ),
               ),
-              DataColumn(
-                label: Text(
-                  'Web',
-                  style: TextStyle(
-                      fontStyle: FontStyle.italic, color: Colors.white),
-                ),
-              ),
-              DataColumn(
-                label: Text(
-                  'Contact',
-                  style: TextStyle(
-                      fontStyle: FontStyle.italic, color: Colors.white),
-                ),
-              ),
             ],
             rows: result?.result.map((e) {
                   void onRowTap() {
                     Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (context) =>
-                            AgencyDetailScreen(agencyModel: e),
+                            SectionDetailScreen(sectionModel: e),
                       ),
                     );
                   }
@@ -150,8 +136,6 @@ class _AgencyListScreenState extends State<AgencyListScreen> {
                   return DataRow(
                     cells: [
                       DataCell(Text(e.name ?? ""), onTap: onRowTap),
-                      DataCell(Text(e.web ?? ""), onTap: onRowTap),
-                      DataCell(Text(e.contact ?? ""), onTap: onRowTap),
                     ],
                   );
                 }).toList() ??

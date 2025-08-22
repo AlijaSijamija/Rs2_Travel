@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Travel.Services.Interfaces
 {
-    public interface ISectionService : ICRUDService<Models.Section.Section, Models.Filters.BaseSearchObject, Section, Section, long>
+    public interface ISectionService : ICRUDService<Models.Section.Section, Models.Filters.SectionSearchObject, SectionReguest, SectionReguest, long>
     {
     }
 }

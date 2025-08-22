@@ -2,23 +2,23 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:travel_admin/model/agency/agency.dart';
+import 'package:travel_admin/model/city/city.dart';
 import 'package:travel_admin/model/search_result.dart';
-import 'package:travel_admin/providers/agency_provider.dart';
-import 'package:travel_admin/screens/agencies/agency_details_screen.dart';
+import 'package:travel_admin/providers/city_provider.dart';
+import 'package:travel_admin/screens/cities/city_details_screen.dart';
 import 'package:travel_admin/widgets/master_screen.dart';
 
-class AgencyListScreen extends StatefulWidget {
-  const AgencyListScreen({super.key});
+class CityListScreen extends StatefulWidget {
+  const CityListScreen({super.key});
 
   @override
-  State<AgencyListScreen> createState() => _AgencyListScreenState();
+  State<CityListScreen> createState() => _CityListScreenState();
   void functionThatSetsTheState() {}
 }
 
-class _AgencyListScreenState extends State<AgencyListScreen> {
-  late AgencyProvider _agencyProvider;
-  SearchResult<AgencyModel>? result;
+class _CityListScreenState extends State<CityListScreen> {
+  late CityProvider _cityProvider;
+  SearchResult<CityModel>? result;
   TextEditingController _nameController = TextEditingController();
 
   int currentPage = 1;
@@ -27,7 +27,7 @@ class _AgencyListScreenState extends State<AgencyListScreen> {
   @override
   void initState() {
     super.initState();
-    _agencyProvider = context.read<AgencyProvider>();
+    _cityProvider = context.read<CityProvider>();
     _loadData();
   }
 
@@ -38,7 +38,7 @@ class _AgencyListScreenState extends State<AgencyListScreen> {
       'pageSize': pageSize,
     };
 
-    var data = await _agencyProvider.get(filter: filter);
+    var data = await _cityProvider.get(filter: filter);
 
     setState(() {
       result = data;
@@ -49,7 +49,7 @@ class _AgencyListScreenState extends State<AgencyListScreen> {
   @override
   Widget build(BuildContext context) {
     return MasterScreenWidget(
-      title_widget: Text("Agency list"),
+      title_widget: Text("City list"),
       child: Container(
         child: Column(
           children: [
@@ -86,7 +86,7 @@ class _AgencyListScreenState extends State<AgencyListScreen> {
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => AgencyDetailScreen(agencyModel: null),
+                  builder: (context) => CityDetailScreen(cityModel: null),
                 ),
               );
             },
@@ -122,27 +122,12 @@ class _AgencyListScreenState extends State<AgencyListScreen> {
                       fontStyle: FontStyle.italic, color: Colors.white),
                 ),
               ),
-              DataColumn(
-                label: Text(
-                  'Web',
-                  style: TextStyle(
-                      fontStyle: FontStyle.italic, color: Colors.white),
-                ),
-              ),
-              DataColumn(
-                label: Text(
-                  'Contact',
-                  style: TextStyle(
-                      fontStyle: FontStyle.italic, color: Colors.white),
-                ),
-              ),
             ],
             rows: result?.result.map((e) {
                   void onRowTap() {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) =>
-                            AgencyDetailScreen(agencyModel: e),
+                        builder: (context) => CityDetailScreen(cityModel: e),
                       ),
                     );
                   }
@@ -150,8 +135,6 @@ class _AgencyListScreenState extends State<AgencyListScreen> {
                   return DataRow(
                     cells: [
                       DataCell(Text(e.name ?? ""), onTap: onRowTap),
-                      DataCell(Text(e.web ?? ""), onTap: onRowTap),
-                      DataCell(Text(e.contact ?? ""), onTap: onRowTap),
                     ],
                   );
                 }).toList() ??

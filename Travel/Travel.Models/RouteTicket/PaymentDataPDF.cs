@@ -10,5 +10,9 @@ namespace Travel.Models.RouteTicket
     {
         public string Name { get; set; }
         public double Price { get; set; }
+        public int TicketsSold { get; set; }
+        public double Expense { get; set; }
+        public double Profit { get; set; }
+        public double Income { get; set; }
     }
 }

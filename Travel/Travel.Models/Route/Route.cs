@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Travel.Models.Enums;
 
 namespace Travel.Models.Route
 {
@@ -24,6 +25,7 @@ namespace Travel.Models.Route
         public DateTime ValidTo { get; set; }
         public long AgencyId { get; set; }
         public Agency.Agency Agency { get; set; }
+        public BusType BusType { get; set; }
         public List<RouteTicket.RouteTicket> RouteTickets { get; set; }
     }
 }

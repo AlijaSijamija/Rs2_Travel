@@ -3,6 +3,7 @@ import 'dart:ffi';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:travel_admin/model/agency/agency.dart';
 import 'package:travel_admin/model/city/city.dart';
+import 'package:travel_admin/model/enums/bus_type.dart';
 part 'route.g.dart';
 
 @JsonSerializable()
@@ -19,6 +20,7 @@ class RouteModel {
   String? travelTime;
   String? departureTime;
   String? arrivalTime;
+  int? busType;
   int? agencyId;
   AgencyModel? agency;
   DateTime? validFrom;
@@ -39,7 +41,8 @@ class RouteModel {
       this.agency,
       this.agencyId,
       this.validFrom,
-      this.validTo);
+      this.validTo,
+      this.busType);
 
   /// A necessary factory constructor for creating a new User instance
   /// from a map. Pass the map to the generated `_$UserFromJson()` constructor.

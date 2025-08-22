@@ -13,7 +13,7 @@ namespace Travel.Services.Interfaces
     {
        List<AgencyProfitReport> GetProfitByAgency(AgencyProfitSearchObject searchObject);
         List<RouteProfitReport> GetProfitByRouteForAgency(AgencyProfitSearchObject searchObject);
-        List<PaymentDataPDF> GeneratePaymentData(int year, long? agencyId);
+        List<PaymentDataPDF> GeneratePaymentData(int year, long? agencyId, List<int>? busTypes = null);
         List<Models.Route.Route> GetRouteTickets(string passengerId);
         List<Models.TicketSeat.TicketSeat> GetReservedSeats(long routeId);
     }

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:travel_admin/main.dart';
 import 'package:travel_admin/screens/agencies/agency_list_screen.dart';
+import 'package:travel_admin/screens/cities/city_list_screen.dart';
 import 'package:travel_admin/screens/dashboard/dashboard.dart';
 import 'package:travel_admin/screens/notifications/notification_list_screen.dart';
 import 'package:travel_admin/screens/organized_trips/organized_trip_list_screen.dart';
 import 'package:travel_admin/screens/route_ticket_report/route_ticket_report_screen.dart';
 import 'package:travel_admin/screens/routes/route_list_screen.dart';
+import 'package:travel_admin/screens/sections/section_list_screen.dart';
 import 'package:travel_admin/screens/users/user_list_screen.dart';
 import 'package:travel_admin/utils/util.dart';
 
@@ -68,6 +70,27 @@ class _MasterScreenWidgetState extends State<MasterScreenWidget> {
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(builder: (context) => DashboardPage()),
+                  );
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.location_city_rounded,
+                    color: Colors.white), // Add an icon to the ListTile
+                title: Text("Cities", style: TextStyle(color: Colors.white)),
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => CityListScreen()),
+                  );
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.settings_applications_sharp,
+                    color: Colors.white), // Add an icon to the ListTile
+                title: Text("Sections", style: TextStyle(color: Colors.white)),
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                        builder: (context) => SectionListScreen()),
                   );
                 },
               ),

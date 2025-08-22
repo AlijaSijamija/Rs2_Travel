@@ -6,7 +6,12 @@ part 'pdf_report.g.dart';
 class PdfReportModel {
   String? name;
   double? price;
-  PdfReportModel(this.name, this.price);
+  int? ticketsSold;
+  double? expense;
+  double? profit;
+  double? income;
+  PdfReportModel(this.name, this.price, this.ticketsSold, this.expense,
+      this.income, this.profit);
 
   /// A necessary factory constructor for creating a new User instance
   /// from a map. Pass the map to the generated `_$UserFromJson()` constructor.

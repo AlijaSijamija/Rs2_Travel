@@ -550,13 +550,13 @@ SET IDENTITY_INSERT Routes ON;
 
 INSERT INTO Routes 
 (Id, NumberOfSeats, AvailableSeats, AdultPrice, ChildPrice, FromCityId, ToCityId, TravelTime, 
- DepartureTime, ArrivalTime, ValidFrom, ValidTo, AgencyId, CreatedById, CreatedAt, LastModifiedBy, LastModified, DeletedAt) 
+ DepartureTime, ArrivalTime, ValidFrom, ValidTo, AgencyId, BusType, CreatedById, CreatedAt, LastModifiedBy, LastModified, DeletedAt) 
 VALUES
-(1, 50, 45, 25.00, 15.00, 1, 2, '2h 30m', '08:00:00', '10:30:00', '2024-07-01', '2025-12-31', 1, NULL, GETDATE(), NULL, NULL, NULL),
-(2, 40, 20, 30.00, 18.00, 7, 5, '4h 00m', '10:00:00', '14:00:00', '2024-07-10', '2025-11-30', 2, NULL, GETDATE(), NULL, NULL, NULL),
-(3, 60, 60, 20.00, 10.00, 2, 4, '1h 45m', '06:30:00', '08:15:00', '2024-08-01', '2025-10-15', 3, NULL, GETDATE(), NULL, NULL, NULL),
-(4, 55, 10, 50.00, 35.00, 5, 1, '3h 20m', '14:00:00', '17:20:00', '2024-07-20', '2025-09-30', 4, NULL, GETDATE(), NULL, NULL, NULL),
-(5, 30, 5, 45.00, 25.00, 4, 6, '5h 10m', '07:00:00', '12:10:00', '2024-07-15', '2025-08-31', 5, NULL, GETDATE(), NULL, NULL, NULL);
+(1, 50, 45, 25.00, 15.00, 1, 2, '2h 30m', '08:00:00', '10:30:00', '2024-07-01', '2025-12-31', 1, 2, NULL, GETDATE(), NULL, NULL, NULL),
+(2, 40, 20, 30.00, 18.00, 7, 5, '4h 00m', '10:00:00', '14:00:00', '2024-07-10', '2025-11-30', 2, 2, NULL, GETDATE(), NULL, NULL, NULL),
+(3, 60, 60, 20.00, 10.00, 2, 4, '1h 45m', '06:30:00', '08:15:00', '2024-08-01', '2025-10-15', 3, 3, NULL, GETDATE(), NULL, NULL, NULL),
+(4, 55, 10, 50.00, 35.00, 5, 1, '3h 20m', '14:00:00', '17:20:00', '2024-07-20', '2025-09-30', 4, 3, NULL, GETDATE(), NULL, NULL, NULL),
+(5, 30, 5, 45.00, 25.00, 4, 6, '5h 10m', '07:00:00', '12:10:00', '2024-07-15', '2025-08-31', 5, 1, NULL, GETDATE(), NULL, NULL, NULL);
 
 SET IDENTITY_INSERT Routes OFF;
 ";

@@ -9,7 +9,12 @@ class RouteProfitReportModel {
   int? routeId;
   String? routeName;
   double? totalProfit;
-  RouteProfitReportModel(this.routeId, this.routeName, this.totalProfit);
+  int? busType;
+  int? ticketsSold;
+  double? totalRevenue;
+  double? totalCost;
+  RouteProfitReportModel(this.routeId, this.routeName, this.totalProfit,
+      this.busType, this.ticketsSold, this.totalCost, this.totalRevenue);
 
   /// A necessary factory constructor for creating a new User instance
   /// from a map. Pass the map to the generated `_$UserFromJson()` constructor.

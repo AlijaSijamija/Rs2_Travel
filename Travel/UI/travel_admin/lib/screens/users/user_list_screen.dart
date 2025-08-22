@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:travel_admin/model/account/account.dart';
@@ -27,7 +29,7 @@ class _UserListScreenState extends State<UserListScreen> {
   SearchResult<AccountModel>? result;
   TextEditingController _nameController = new TextEditingController();
   String? selectedValue; // variable to store the selected value
-
+  Timer? _debounce;
   List<DropdownItem> dropdownItems = [
     DropdownItem(0, 'All users'),
     DropdownItem(1, 'Admins'),
@@ -69,44 +71,39 @@ class _UserListScreenState extends State<UserListScreen> {
       padding: const EdgeInsets.all(8.0),
       child: Row(
         children: [
-          SizedBox(
-            width: 8,
-          ),
+          SizedBox(width: 8),
           Expanded(
             child: TextField(
               decoration: InputDecoration(labelText: "First or last name"),
               controller: _nameController,
+              onChanged: (value) {
+                // cancel prethodni timer
+                if (_debounce?.isActive ?? false) _debounce!.cancel();
+
+                // novi timer sa delayom 500ms
+                _debounce = Timer(Duration(milliseconds: 500), () async {
+                  var data = await _accountProvider.getAll(filter: {
+                    'fullName': _nameController.text,
+                    'userTypes': selectedValue
+                  });
+
+                  setState(() {
+                    result = data;
+                  });
+                });
+              },
             ),
           ),
           Expanded(
-              child: // list of dropdown items
-                  DropdownButton<String>(
-            padding: EdgeInsets.only(top: 20.0, left: 5.0),
-            value: selectedValue,
-            hint: Text('Select user type'), // optional hint text
-            onChanged: (newValue) async {
-              setState(() {
-                selectedValue = newValue; // update the selected value
-              });
+            child: DropdownButton<String>(
+              padding: EdgeInsets.only(top: 20.0, left: 5.0),
+              value: selectedValue,
+              hint: Text('Select user type'),
+              onChanged: (newValue) async {
+                setState(() {
+                  selectedValue = newValue;
+                });
 
-              var data = await _accountProvider.getAll(filter: {
-                'fullName': _nameController.text,
-                'userTypes': selectedValue
-              });
-
-              setState(() {
-                result = data;
-              });
-            },
-            items: dropdownItems.map((item) {
-              return DropdownMenuItem<String>(
-                value: item.value.toString(),
-                child: Text(item.displayText),
-              );
-            }).toList(),
-          )),
-          ElevatedButton(
-              onPressed: () async {
                 var data = await _accountProvider.getAll(filter: {
                   'fullName': _nameController.text,
                   'userTypes': selectedValue
@@ -116,24 +113,34 @@ class _UserListScreenState extends State<UserListScreen> {
                   result = data;
                 });
               },
-              child: Text("Search")),
-          SizedBox(
-            width: 8,
-          ),
-          ElevatedButton(
-              onPressed: () async {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => UserDetailsScreen(
-                      user: null,
-                    ),
-                  ),
+              items: dropdownItems.map((item) {
+                return DropdownMenuItem<String>(
+                  value: item.value.toString(),
+                  child: Text(item.displayText),
                 );
-              },
-              child: Text("Add new"))
+              }).toList(),
+            ),
+          ),
+          SizedBox(width: 8),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => UserDetailsScreen(user: null),
+                ),
+              );
+            },
+            child: Text("Add new"),
+          ),
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    super.dispose();
   }
 
   Widget _buildDataListView() {

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:travel_mobile/model/city/city.dart';
 import 'package:travel_mobile/model/route/route.dart';
 import 'package:travel_mobile/providers/account_provider.dart';
+import 'package:travel_mobile/providers/city_provider.dart';
 import 'package:travel_mobile/providers/route_provider.dart';
 import 'package:travel_mobile/screens/route_seat_selection/route_seat_selection_screen.dart';
 import 'package:travel_mobile/widgets/master_screen.dart';
@@ -20,17 +22,26 @@ class _SavedRoutesScreenState extends State<SavedRoutesScreen> {
   List<RouteModel> filteredRoutes = [];
   bool isLoading = true;
   late String userId;
-
-  String fromCityFilter = '';
-  String toCityFilter = '';
+  List<CityModel> cities = [];
   String sortOrder = 'asc'; // 'asc' or 'desc'
-
+  late CityProvider _cityProvider;
+  int? selectedFromCityId;
+  int? selectedToCityId;
   @override
   void initState() {
     super.initState();
     _routeProvider = context.read<RouteProvider>();
+    _cityProvider = context.read<CityProvider>();
     userId = context.read<AccountProvider>().getCurrentUser().nameid!;
     loadSavedRoutes();
+    _loadCities();
+  }
+
+  Future<void> _loadCities() async {
+    final response = await _cityProvider.get();
+    setState(() {
+      cities = response.result;
+    });
   }
 
   Future<void> loadSavedRoutes() async {
@@ -45,12 +56,10 @@ class _SavedRoutesScreenState extends State<SavedRoutesScreen> {
 
   void applyFilters() {
     List<RouteModel> filtered = savedRoutes.where((route) {
-      final fromMatch = route.fromCity!.name!
-          .toLowerCase()
-          .contains(fromCityFilter.toLowerCase());
-      final toMatch = route.toCity!.name!
-          .toLowerCase()
-          .contains(toCityFilter.toLowerCase());
+      final fromMatch = selectedFromCityId == null ||
+          route.fromCity?.id == selectedFromCityId;
+      final toMatch =
+          selectedToCityId == null || route.toCity?.id == selectedToCityId;
       return fromMatch && toMatch;
     }).toList();
 
@@ -131,22 +140,44 @@ class _SavedRoutesScreenState extends State<SavedRoutesScreen> {
                       Row(
                         children: [
                           Expanded(
-                            child: TextField(
+                            child: DropdownButtonFormField<int?>(
+                              value: selectedFromCityId,
                               decoration:
                                   const InputDecoration(labelText: "From City"),
+                              items: [
+                                const DropdownMenuItem(
+                                  value: null,
+                                  child: Text("All"),
+                                ),
+                                ...cities.map((city) => DropdownMenuItem(
+                                      value: city.id,
+                                      child: Text(city.name ?? ""),
+                                    )),
+                              ],
                               onChanged: (value) {
-                                setState(() => fromCityFilter = value);
+                                setState(() => selectedFromCityId = value);
                                 applyFilters();
                               },
                             ),
                           ),
                           const SizedBox(width: 12),
                           Expanded(
-                            child: TextField(
+                            child: DropdownButtonFormField<int?>(
+                              value: selectedToCityId,
                               decoration:
                                   const InputDecoration(labelText: "To City"),
+                              items: [
+                                const DropdownMenuItem(
+                                  value: null,
+                                  child: Text("All"),
+                                ),
+                                ...cities.map((city) => DropdownMenuItem(
+                                      value: city.id,
+                                      child: Text(city.name ?? ""),
+                                    )),
+                              ],
                               onChanged: (value) {
-                                setState(() => toCityFilter = value);
+                                setState(() => selectedToCityId = value);
                                 applyFilters();
                               },
                             ),

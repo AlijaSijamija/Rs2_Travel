@@ -36,7 +36,7 @@ namespace Travel.Controllers
         [HttpGet("pdf-report")]
         public virtual List<PaymentDataPDF> PaymentPdfData([FromQuery] PaymentReportSearchObject request)
         {
-            var result = (_service as IRouteTicketService).GeneratePaymentData(request.Year ?? DateTime.Now.Year, request.AgencyId);
+            var result = (_service as IRouteTicketService).GeneratePaymentData(request.Year ?? DateTime.Now.Year, request.AgencyId, request.BusTypes);
             return result.ToList();
         }
 
