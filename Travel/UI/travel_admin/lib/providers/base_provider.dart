@@ -7,7 +7,7 @@ import 'package:http/http.dart' as http;
 
 abstract class BaseProvider<T> with ChangeNotifier {
   static String baseUrl = const String.fromEnvironment("baseUrl",
-      defaultValue: "https://localhost:7264/api/");
+      defaultValue: "http://localhost:5269/api/");
   String _endpoint = "";
   BaseProvider(String endpoint) {
     _endpoint = endpoint;
