@@ -90,7 +90,7 @@ namespace Travel.Services.Services
             {
                 int ticketsSold = group.Count();
                 double revenue = group.Sum(rt => rt.Price);
-                double cost = CalculateRouteCost(group.Key.BusType, (int)(BusType)group.Key?.BusType);// cost po sjedistu
+                double cost = CalculateRouteCost(group.Key.BusType, GetSeatsForBusType(group.Key?.BusType));// cost po sjedistu
                 double profit = revenue - cost;
 
                 result.Add(new AgencyProfitReport
@@ -132,7 +132,7 @@ namespace Travel.Services.Services
             {
                 int ticketsSold = group.Count();
                 double revenue = group.Sum(rt => rt.Price);
-                double cost = CalculateRouteCost(group.Key.BusType, (int)(BusType)group.Key?.BusType);
+                double cost = CalculateRouteCost(group.Key.BusType,GetSeatsForBusType( group.Key?.BusType));
                 double profit = revenue - cost;
 
                 result.Add(new RouteProfitReport
@@ -183,7 +183,7 @@ namespace Travel.Services.Services
                         var ticketsSold = g.Count();
                         var busType = g.Key.BusType;
                         var income = g.Sum(rt => rt.Price);
-                        var expense = CalculateRouteCost(busType, (int)(BusType)g.Key.BusType);
+                        var expense = CalculateRouteCost(busType, GetSeatsForBusType( g.Key.BusType));
                         return new PaymentDataPDF
                         {
                             Name = $"{g.Key.FromCityName} - {g.Key.ToCityName} ({busType})",
@@ -209,7 +209,7 @@ namespace Travel.Services.Services
                         var ticketsSold = g.Count();
                         var busType = g.Key.BusType;
                         var income = g.Sum(rt => rt.Price);
-                        var expense = CalculateRouteCost(busType, (int)(BusType)g.Key.BusType);
+                        var expense = CalculateRouteCost(busType, GetSeatsForBusType( g.Key.BusType));
                         return new PaymentDataPDF
                         {
                             Name = $"{g.Key.AgencyName} ({busType})",

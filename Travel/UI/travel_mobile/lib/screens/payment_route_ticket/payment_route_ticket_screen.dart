@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:travel_mobile/model/route/route.dart';
 import 'package:travel_mobile/providers/account_provider.dart';
 import 'package:travel_mobile/providers/route_ticket.dart';
+import 'package:travel_mobile/screens/route_reservation_view/route_reservation_view.dart';
 import 'package:travel_mobile/screens/routes/routes_list_screen.dart';
 
 class PaymentRouteScreen extends StatefulWidget {
@@ -215,20 +216,17 @@ class _PaymentRouteScreenState extends State<PaymentRouteScreen> {
             .toList(),
       });
 
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => AlertDialog(
-          title: const Text("Success"),
-          content: const Text("You have successfully purchased a ticket."),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (context) => RoutesSearchScreen()),
-              ),
-              child: const Text("OK"),
-            ),
-          ],
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => PaymentRouteSuccessScreen(
+            route: widget.route!,
+            totalPrice: widget.totalPrice,
+            numberOfAdultPassengers: widget.numberOfAdultPassengers,
+            numberOfChildPassengers: widget.numberOfChildPassengers,
+            arrivalDate: widget.arrivalDate,
+            departureDate: widget.departureDate,
+            seatPassengerData: widget.seatPassengerData,
+          ),
         ),
       );
     } catch (e) {

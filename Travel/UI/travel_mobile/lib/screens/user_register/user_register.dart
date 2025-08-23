@@ -208,8 +208,8 @@ class _UserRegisterScreenScreenState extends State<UserRegisterScreen> {
                               if (value == null || value.isEmpty) {
                                 return null;
                               }
-                              final regex = RegExp(
-                                  r'^\+387\s?(62\s?\d{3}\s?\d{3}|61\s?\d{3}\s?\d{3}|60\s?\d{3}\s?\d{4})$');
+                              final regex =
+                                  RegExp(r'^(?:\+|00)?\d(?:\s?\d){5,14}$');
                               if (!regex.hasMatch(value)) {
                                 return 'Enter a valid phone number in the format +387 62 740 788 or +387 60 740 7888';
                               }

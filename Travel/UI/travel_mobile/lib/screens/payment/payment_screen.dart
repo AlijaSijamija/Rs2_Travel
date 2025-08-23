@@ -6,6 +6,7 @@ import 'package:travel_mobile/model/organized_trip/organized_trip.dart';
 import 'package:travel_mobile/providers/account_provider.dart';
 import 'package:travel_mobile/providers/trip_ticket_provider.dart';
 import 'package:travel_mobile/screens/organized_trip/organized_trip_list_screen.dart';
+import 'package:travel_mobile/screens/trip_reservation_view/trip_reservation_view.dart';
 
 class PaymentScreen extends StatefulWidget {
   final OrganizedTripModel? organizedTrip;
@@ -209,21 +210,14 @@ class _PaymentScreenState extends State<PaymentScreen> {
             .toList(),
       });
 
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => AlertDialog(
-          title: const Text("Success"),
-          content: const Text("You have successfully purchased a ticket."),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pushReplacement(
-                MaterialPageRoute(
-                    builder: (context) => OrganizedTripListScreen()),
-              ),
-              child: const Text("OK"),
-            ),
-          ],
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => PaymentSuccessScreen(
+            trip: widget.organizedTrip!,
+            totalPrice: widget.totalPrice,
+            numberOfPassengers: widget.numberOfPassengers,
+            seatPassengerData: widget.seatPassengerData,
+          ),
         ),
       );
     } catch (e) {

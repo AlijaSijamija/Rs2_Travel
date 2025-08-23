@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:http/http.dart';
 import 'package:http/io_client.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:travel_mobile/model/account/account.dart';
@@ -26,11 +27,19 @@ class AccountProvider extends BaseProvider<AccountModel> {
       headers: headers,
       body: jsonRequest,
     );
-    if (isValidResponse(response)) {
+    if (isValidAutheticateResponse(response)) {
       var data = jsonDecode(response.body);
       return data;
     } else {
       throw new Exception("Unknown error");
+    }
+  }
+
+  bool isValidAutheticateResponse(Response response) {
+    if (response.statusCode < 299) {
+      return true;
+    } else {
+      throw new Exception("Incorrect username or password");
     }
   }
 
