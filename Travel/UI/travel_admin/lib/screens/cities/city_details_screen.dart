@@ -120,13 +120,11 @@ class _CityDetailScreenState extends State<CityDetailScreen> {
                             ),
                             TextButton(
                               onPressed: () async {
-                                // Add delete logic here
                                 try {
                                   if (widget.cityModel != null) {
                                     await _cityProvider
                                         .delete(widget.cityModel!.id!);
-                                    Navigator.of(context)
-                                        .pop(); // Close the dialog
+                                    Navigator.of(context).pop();
                                     Navigator.of(context).pop();
                                     await Navigator.push(
                                       context,
@@ -136,23 +134,29 @@ class _CityDetailScreenState extends State<CityDetailScreen> {
                                     );
                                   }
                                 } on Exception catch (e) {
+                                  Navigator.of(context).pop();
                                   showDialog(
                                     context: context,
                                     builder: (BuildContext context) =>
                                         AlertDialog(
                                       title: Text("Error"),
-                                      content: Text(e.toString()),
+                                      content: Text(
+                                        "Cannot delete this city because it is used as a reference in other tables.",
+                                      ),
                                       actions: [
                                         TextButton(
                                           onPressed: () =>
-                                              Navigator.pop(context),
+                                              Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    CityListScreen()),
+                                          ),
                                           child: Text("OK"),
                                         ),
                                       ],
                                     ),
                                   );
                                 }
-                                Navigator.of(context).pop(); // Close the dialog
                               },
                               child: Text("Delete"),
                             ),
