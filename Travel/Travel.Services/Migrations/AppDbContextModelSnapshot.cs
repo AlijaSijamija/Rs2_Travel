@@ -105,6 +105,42 @@ namespace Travel.Services.Migrations
                     b.ToTable("Agencies");
                 });
 
+            modelBuilder.Entity("Travel.Services.Database.AgencyAvailableBus", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("AgencyId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("BusType")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedById")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("LastModified")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AgencyId");
+
+                    b.ToTable("AgencyAvailableBuses");
+                });
+
             modelBuilder.Entity("Travel.Services.Database.City", b =>
                 {
                     b.Property<long>("Id")
@@ -782,6 +818,17 @@ namespace Travel.Services.Migrations
                     b.Navigation("City");
                 });
 
+            modelBuilder.Entity("Travel.Services.Database.AgencyAvailableBus", b =>
+                {
+                    b.HasOne("Travel.Services.Database.Agency", "Agency")
+                        .WithMany("AgencyAvailableBuses")
+                        .HasForeignKey("AgencyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Agency");
+                });
+
             modelBuilder.Entity("Travel.Services.Database.Notification", b =>
                 {
                     b.HasOne("Travel.Services.Database.User", "Admin")
@@ -960,6 +1007,8 @@ namespace Travel.Services.Migrations
 
             modelBuilder.Entity("Travel.Services.Database.Agency", b =>
                 {
+                    b.Navigation("AgencyAvailableBuses");
+
                     b.Navigation("RouteTickets");
 
                     b.Navigation("Routes");

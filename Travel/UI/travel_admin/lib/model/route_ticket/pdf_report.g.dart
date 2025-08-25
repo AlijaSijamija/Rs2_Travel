@@ -14,6 +14,7 @@ PdfReportModel _$PdfReportModelFromJson(Map<String, dynamic> json) =>
       (json['expense'] as num?)?.toDouble(),
       (json['income'] as num?)?.toDouble(),
       (json['profit'] as num?)?.toDouble(),
+      (json['busType'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$PdfReportModelToJson(PdfReportModel instance) =>
@@ -24,4 +25,5 @@ Map<String, dynamic> _$PdfReportModelToJson(PdfReportModel instance) =>
       'expense': instance.expense,
       'profit': instance.profit,
       'income': instance.income,
+      'busType': instance.busType,
     };

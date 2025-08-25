@@ -156,6 +156,7 @@ class _AgencyReportScreenState extends State<AgencyReportScreen> {
           build: (context) {
             final headers = [
               'Line / Route',
+              'Seats',
               'Tickets Sold',
               'Income (BAM)',
               'Expense (BAM)',
@@ -164,6 +165,7 @@ class _AgencyReportScreenState extends State<AgencyReportScreen> {
             final dataRows = pdfData.map((item) {
               return [
                 item.name ?? 'Unknown',
+                busSeats[item.busType] ?? '',
                 item.ticketsSold?.toString() ?? '0',
                 item.income?.toStringAsFixed(2) ?? '0.00',
                 item.expense?.toStringAsFixed(2) ?? '0.00',
@@ -279,25 +281,35 @@ class _AgencyReportScreenState extends State<AgencyReportScreen> {
     );
   }
 
+  Map<int, String> busSeats = {
+    1: "10-20 seats", // Mini
+    2: "21-35 seats", // Midi
+    3: "36-50 seats", // Standard
+    4: "51+ seats", // Luxury
+  };
+
   Widget _buildBusTypeCheckboxes() {
     return Wrap(
       spacing: 8,
       children: busTypes.map((bus) {
-        return FilterChip(
-          label: Text(bus.displayText),
-          selected: selectedBusTypes.contains(bus.value),
-          onSelected: (selected) async {
-            setState(() {
-              if (selected) {
-                selectedBusTypes.add(bus.value);
-              } else {
-                selectedBusTypes.remove(bus.value);
-              }
-            });
+        return Tooltip(
+          message: busSeats[bus.value] ?? "",
+          child: FilterChip(
+            label: Text(bus.displayText),
+            selected: selectedBusTypes.contains(bus.value),
+            onSelected: (selected) async {
+              setState(() {
+                if (selected) {
+                  selectedBusTypes.add(bus.value);
+                } else {
+                  selectedBusTypes.remove(bus.value);
+                }
+              });
 
-            // ponovo učitaj podatke (agencije ili rute zavisno šta je odabrano)
-            await _onAgencySelected(_selectedAgencyId);
-          },
+              // ponovo učitaj podatke (agencije ili rute zavisno šta je odabrano)
+              await _onAgencySelected(_selectedAgencyId);
+            },
+          ),
         );
       }).toList(),
     );

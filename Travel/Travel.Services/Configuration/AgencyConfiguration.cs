@@ -18,6 +18,7 @@ namespace Travel.Services.Configuration
             builder.HasQueryFilter(u => u.DeletedAt == null);
             builder.HasOne(n => n.Admin).WithMany(n => n.Agencies).OnDelete(DeleteBehavior.NoAction);
             builder.HasOne(n => n.City).WithMany(n => n.Agencies).OnDelete(DeleteBehavior.NoAction);
+            builder.HasMany(n => n.AgencyAvailableBuses).WithOne(n => n.Agency);
         }
     }
 }

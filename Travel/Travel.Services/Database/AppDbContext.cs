@@ -21,6 +21,7 @@ namespace Travel.Services.Database
         public virtual DbSet<SavedRoutes> SavedRoutes { get; set; }
         public virtual DbSet<TicketSeat> TicketSeats { get; set; }
         public virtual DbSet<ReadNotification> ReadNotifications { get; set; }
+        public virtual DbSet<AgencyAvailableBus> AgencyAvailableBuses { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
@@ -42,6 +43,7 @@ namespace Travel.Services.Database
             builder.ApplyConfiguration(new SavedRoutesConfiguration());
             builder.ApplyConfiguration(new TicketSeatConfiguration());
             builder.ApplyConfiguration(new ReadNotificationConfiguration());
+            builder.ApplyConfiguration(new AgencyAvailableBusesConfiguration());
             
         }
 

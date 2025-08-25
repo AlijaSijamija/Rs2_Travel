@@ -21,6 +21,13 @@ class AgencyDetailScreen extends StatefulWidget {
 }
 
 class _AgencyDetailScreenState extends State<AgencyDetailScreen> {
+  final List<Map<String, dynamic>> busTypes = [
+    {"id": 1, "name": "Mini"},
+    {"id": 2, "name": "Midi"},
+    {"id": 3, "name": "Standard"},
+    {"id": 4, "name": "Luxury"},
+  ];
+
   final _formKey = GlobalKey<FormBuilderState>();
   Map<String, dynamic> _initialValue = {};
   late AgencyProvider _agencyProvider;
@@ -29,6 +36,7 @@ class _AgencyDetailScreenState extends State<AgencyDetailScreen> {
   SearchResult<CityModel>? citiesResult;
   bool isLoading = true;
   dynamic currentUser = null;
+  List<String> _includedBuses = [];
   @override
   void initState() {
     // TODO: implement initState
@@ -38,9 +46,16 @@ class _AgencyDetailScreenState extends State<AgencyDetailScreen> {
       'web': widget.agencyModel?.web,
       'contact': widget.agencyModel?.contact,
       'cityId': widget.agencyModel?.cityId?.toString(),
-      'adminId': widget.agencyModel?.adminId.toString()
+      'adminId': widget.agencyModel?.adminId.toString(),
+      'availableBuses': widget.agencyModel?.agencyAvailableBuses
+              ?.map((bus) => bus.busType.toString())
+              .toList() ??
+          []
     };
-
+    _includedBuses = (_initialValue['availableBuses'] as List<dynamic>?)
+            ?.map((e) => e.toString())
+            .toList() ??
+        [];
     _agencyProvider = context.read<AgencyProvider>();
     _cityProvider = context.read<CityProvider>();
     _accountProvider = context.read<AccountProvider>();
@@ -80,13 +95,24 @@ class _AgencyDetailScreenState extends State<AgencyDetailScreen> {
                         _formKey.currentState
                             ?.patchValue({'adminId': this.currentUser.nameid});
                         _formKey.currentState?.saveAndValidate();
+                        var formValue = _formKey.currentState?.value;
+                        var request = {
+                          'name': formValue?['name'],
+                          'web': formValue?['web'],
+                          'contact': formValue?['contact'],
+                          'cityId': int.tryParse(formValue?['cityId']),
+                          'adminId': formValue?['adminId'],
+                          'availableBuses':
+                              (formValue?['availableBuses'] as List<dynamic>)
+                                  .map((e) => int.parse(e.toString()))
+                                  .toList()
+                        };
 
                         if (widget.agencyModel == null) {
-                          await _agencyProvider
-                              .insert(_formKey.currentState?.value);
+                          await _agencyProvider.insert(request);
                         } else {
-                          await _agencyProvider.update(widget.agencyModel!.id!,
-                              _formKey.currentState?.value);
+                          await _agencyProvider.update(
+                              widget.agencyModel!.id!, request);
                         }
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
@@ -317,6 +343,32 @@ class _AgencyDetailScreenState extends State<AgencyDetailScreen> {
                         validator: FormBuilderValidators.required(
                           errorText: 'City is required',
                         ),
+                      ),
+                      SizedBox(height: 10),
+                      FormBuilderFilterChip(
+                        name: 'availableBuses',
+                        decoration:
+                            InputDecoration(labelText: "Available buses"),
+                        initialValue: _includedBuses,
+                        options: busTypes
+                            .map((bus) => FormBuilderChipOption(
+                                  value: bus["id"].toString(),
+                                  child: Text(bus["name"]),
+                                ))
+                            .toList(),
+                        spacing: 8,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Select at least one bus type';
+                          }
+                          return null;
+                        },
+                        onChanged: (value) {
+                          setState(() {
+                            _includedBuses =
+                                value?.map((e) => e.toString()).toList() ?? [];
+                          });
+                        },
                       ),
                     ],
                   ),

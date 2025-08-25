@@ -10,8 +10,9 @@ class PdfReportModel {
   double? expense;
   double? profit;
   double? income;
+  int? busType;
   PdfReportModel(this.name, this.price, this.ticketsSold, this.expense,
-      this.income, this.profit);
+      this.income, this.profit, this.busType);
 
   /// A necessary factory constructor for creating a new User instance
   /// from a map. Pass the map to the generated `_$UserFromJson()` constructor.

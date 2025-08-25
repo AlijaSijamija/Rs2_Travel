@@ -187,6 +187,7 @@ namespace Travel.Services.Services
                         return new PaymentDataPDF
                         {
                             Name = $"{g.Key.FromCityName} - {g.Key.ToCityName} ({busType})",
+                            BusType = busType,
                             TicketsSold = ticketsSold,
                             Income = income,
                             Expense = expense,
@@ -214,6 +215,7 @@ namespace Travel.Services.Services
                         {
                             Name = $"{g.Key.AgencyName} ({busType})",
                             TicketsSold = ticketsSold,
+                            BusType = busType,
                             Income = income,
                             Expense = expense,
                             Profit = income - expense

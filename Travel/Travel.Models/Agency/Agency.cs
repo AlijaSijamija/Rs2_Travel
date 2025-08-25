@@ -17,5 +17,6 @@ namespace Travel.Models.Agency
         public City.City City { get; set; }
         public string AdminId { get; set; }
         public UserResponse Admin { get; set; }
+        public List<AgencyAvailableBus> AgencyAvailableBuses { get; set; }
     }
 }

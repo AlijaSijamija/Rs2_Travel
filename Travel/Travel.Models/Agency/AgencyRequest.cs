@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Travel.Models.Account;
+using Travel.Models.Enums;
 
 namespace Travel.Models.Agency
 {
@@ -14,5 +15,6 @@ namespace Travel.Models.Agency
         public string Contact { get; set; }
         public long CityId { get; set; }
         public string AdminId { get; set; }
+        public List<BusType> AvailableBuses { get; set; }
     }
 }

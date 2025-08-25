@@ -38,6 +38,7 @@ namespace Travel.Services.MappingProfile
             CreateMap<Database.TripTicket, Travel.Models.TripTicket.TripTicket>();
             CreateMap<TripTicketRequest, Database.TripTicket>();
             CreateMap<Database.TicketSeat, TicketSeat>();
+            CreateMap<Database.AgencyAvailableBus, AgencyAvailableBus>();
         }
     }
 }

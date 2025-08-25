@@ -67,6 +67,10 @@ namespace Travel.Configuration
                     SeedRouteTickets(context);
                 }
 
+                if (!context.AgencyAvailableBuses.Any())
+                {
+                    SeedAgencyAvailableBuses(context);
+                }
             }
         }
 
@@ -725,5 +729,106 @@ SET IDENTITY_INSERT SavedRoutes OFF;
             context.SaveChanges();
         }
 
+        private static void SeedAgencyAvailableBuses(AppDbContext context)
+        {
+            var agencies = context.Agencies.ToList();
+
+            if (!agencies.Any())
+                return;
+
+            var availablebuses = new List<AgencyAvailableBus>
+            {
+                new AgencyAvailableBus
+                {
+                    AgencyId = 1,
+                    BusType = BusType.Midi,
+                    CreatedAt = DateTime.Now,
+                    CreatedById = null,
+                    LastModified = DateTime.Now,
+                },
+                 new AgencyAvailableBus
+                {
+                    AgencyId = 1,
+                    BusType = BusType.Luxury,
+                    CreatedAt = DateTime.Now,
+                    CreatedById = null,
+                    LastModified = DateTime.Now,
+                },
+                new AgencyAvailableBus
+                {
+                    AgencyId = 2,
+                    BusType = BusType.Midi,
+                    CreatedAt = DateTime.Now,
+                    CreatedById = null,
+                    LastModified = DateTime.Now,
+                },
+                 new AgencyAvailableBus
+                {
+                    AgencyId = 2,
+                    BusType = BusType.Standard,
+                    CreatedAt = DateTime.Now,
+                    CreatedById = null,
+                    LastModified = DateTime.Now,
+                },
+                  new AgencyAvailableBus
+                {
+                    AgencyId = 3,
+                    BusType = BusType.Midi,
+                    CreatedAt = DateTime.Now,
+                    CreatedById = null,
+                    LastModified = DateTime.Now,
+                },
+                new AgencyAvailableBus
+                {
+                    AgencyId = 3,
+                    BusType = BusType.Standard,
+                    CreatedAt = DateTime.Now,
+                    CreatedById = null,
+                    LastModified = DateTime.Now,
+                },
+                 new AgencyAvailableBus
+                {
+                    AgencyId = 3,
+                    BusType = BusType.Luxury,
+                    CreatedAt = DateTime.Now,
+                    CreatedById = null,
+                    LastModified = DateTime.Now,
+                },
+                 new AgencyAvailableBus
+                {
+                    AgencyId = 4,
+                    BusType = BusType.Standard,
+                    CreatedAt = DateTime.Now,
+                    CreatedById = null,
+                    LastModified = DateTime.Now,
+                },
+                  new AgencyAvailableBus
+                {
+                    AgencyId = 5,
+                    BusType = BusType.Mini,
+                    CreatedAt = DateTime.Now,
+                    CreatedById = null,
+                    LastModified = DateTime.Now,
+                },
+                   new AgencyAvailableBus
+                {
+                    AgencyId = 6,
+                    BusType = BusType.Mini,
+                    CreatedAt = DateTime.Now,
+                    CreatedById = null,
+                    LastModified = DateTime.Now,
+                },
+                    new AgencyAvailableBus
+                {
+                    AgencyId = 7,
+                    BusType = BusType.Mini,
+                    CreatedAt = DateTime.Now,
+                    CreatedById = null,
+                    LastModified = DateTime.Now,
+                }
+            };
+            context.AgencyAvailableBuses.AddRange(availablebuses);
+            context.SaveChanges();
+        }
     }
 }

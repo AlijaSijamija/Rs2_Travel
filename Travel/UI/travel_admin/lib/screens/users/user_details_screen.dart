@@ -439,59 +439,102 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                         SizedBox(height: 10),
                         Row(
                           children: [
+                            // Password
                             Expanded(
-                              child: FormBuilderTextField(
-                                decoration:
-                                    InputDecoration(labelText: "Password"),
-                                name: "password",
-                                obscureText: true,
+                              child: FormBuilderField<String>(
+                                name: 'password',
                                 validator: (value) {
                                   if (!isEditMode ||
-                                      value != null && value.isNotEmpty) {
-                                    if (value == null || value.isEmpty) {
+                                      (value != null && value.isNotEmpty)) {
+                                    if (value == null || value.isEmpty)
                                       return 'Password is required';
-                                    }
-                                    if (value.length < 6) {
+                                    if (value.length < 6)
                                       return 'Password must be at least 6 characters';
-                                    }
-                                    if (!value.contains(RegExp(r'[a-z]'))) {
+                                    if (!value.contains(RegExp(r'[a-z]')))
                                       return 'Password must contain at least one lowercase letter';
-                                    }
-                                    if (!value.contains(RegExp(r'[A-Z]'))) {
+                                    if (!value.contains(RegExp(r'[A-Z]')))
                                       return 'Password must contain at least one uppercase letter';
-                                    }
-                                    return null;
                                   }
+                                  return null;
+                                },
+                                builder: (field) {
+                                  return Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      TextFormField(
+                                        initialValue: field.value,
+                                        obscureText: true,
+                                        decoration: InputDecoration(
+                                          labelText: 'Password',
+                                          errorText:
+                                              null, // isključujemo default errorText
+                                        ),
+                                        onChanged: (val) =>
+                                            field.didChange(val),
+                                      ),
+                                      if (field.errorText != null)
+                                        Padding(
+                                          padding:
+                                              const EdgeInsets.only(top: 4.0),
+                                          child: Text(
+                                            field.errorText!,
+                                            style: TextStyle(
+                                                color: Colors.red,
+                                                fontSize: 12),
+                                          ),
+                                        ),
+                                    ],
+                                  );
                                 },
                               ),
                             ),
                             SizedBox(width: 10),
+                            // Confirm Password
                             Expanded(
-                              child: FormBuilderTextField(
-                                decoration: InputDecoration(
-                                    labelText: "Confirm password"),
-                                name: "confirmPassword",
-                                obscureText: true,
+                              child: FormBuilderField<String>(
+                                name: 'confirmPassword',
                                 validator: (value) {
-                                  if ((_formKey.currentState!.fields['password']
-                                                  ?.value !=
-                                              null &&
-                                          _formKey
-                                              .currentState!
-                                              .fields['password']
-                                              ?.value
-                                              .isNotEmpty) ||
+                                  final password = _formKey
+                                      .currentState?.fields['password']?.value;
+                                  if ((password != null &&
+                                          password.isNotEmpty) ||
                                       !isEditMode) {
-                                    if (value == null || value.isEmpty) {
+                                    if (value == null || value.isEmpty)
                                       return 'Confirm password is required';
-                                    }
-                                    if (value !=
-                                        _formKey.currentState!
-                                            .fields['password']?.value) {
+                                    if (value != password)
                                       return 'Passwords do not match';
-                                    }
-                                    return null;
                                   }
+                                  return null;
+                                },
+                                builder: (field) {
+                                  return Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      TextFormField(
+                                        initialValue: field.value,
+                                        obscureText: true,
+                                        decoration: InputDecoration(
+                                          labelText: 'Confirm password',
+                                          errorText: null,
+                                        ),
+                                        onChanged: (val) =>
+                                            field.didChange(val),
+                                      ),
+                                      if (field.errorText != null)
+                                        Padding(
+                                          padding:
+                                              const EdgeInsets.only(top: 4.0),
+                                          child: Text(
+                                            field.errorText!,
+                                            style: TextStyle(
+                                                color: Colors.red,
+                                                fontSize: 12),
+                                          ),
+                                        ),
+                                    ],
+                                  );
                                 },
                               ),
                             ),

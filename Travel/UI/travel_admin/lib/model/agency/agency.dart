@@ -1,6 +1,7 @@
 import 'dart:ffi';
 
 import 'package:json_annotation/json_annotation.dart';
+import 'package:travel_admin/model/agency_buses/agency_bus.dart';
 import 'package:travel_admin/model/city/city.dart';
 part 'agency.g.dart';
 
@@ -13,9 +14,9 @@ class AgencyModel {
   int? cityId;
   String? adminId;
   CityModel? city;
-
+  List<AgencyBusModel> agencyAvailableBuses;
   AgencyModel(this.id, this.name, this.cityId, this.web, this.city,
-      this.contact, this.adminId);
+      this.contact, this.adminId, this.agencyAvailableBuses);
 
   /// A necessary factory constructor for creating a new User instance
   /// from a map. Pass the map to the generated `_$UserFromJson()` constructor.

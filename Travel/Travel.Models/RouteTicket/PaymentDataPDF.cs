@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Travel.Models.Enums;
 
 namespace Travel.Models.RouteTicket
 {
@@ -14,5 +15,6 @@ namespace Travel.Models.RouteTicket
         public double Expense { get; set; }
         public double Profit { get; set; }
         public double Income { get; set; }
+        public BusType BusType { get; set; }
     }
 }

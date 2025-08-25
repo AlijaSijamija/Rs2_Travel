@@ -16,6 +16,9 @@ AgencyModel _$AgencyModelFromJson(Map<String, dynamic> json) => AgencyModel(
           : CityModel.fromJson(json['city'] as Map<String, dynamic>),
       json['contact'] as String?,
       json['adminId'] as String?,
+      (json['agencyAvailableBuses'] as List<dynamic>)
+          .map((e) => AgencyBusModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
 
 Map<String, dynamic> _$AgencyModelToJson(AgencyModel instance) =>
@@ -27,4 +30,5 @@ Map<String, dynamic> _$AgencyModelToJson(AgencyModel instance) =>
       'cityId': instance.cityId,
       'adminId': instance.adminId,
       'city': instance.city,
+      'agencyAvailableBuses': instance.agencyAvailableBuses,
     };

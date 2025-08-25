@@ -34,8 +34,66 @@ namespace Travel.Services.Services
 
         public override IQueryable<Database.Agency> AddInclude(IQueryable<Database.Agency> query, AgencySearchObject? search = null)
         {
-            query = query.Include("City").Include("Admin");
+            query = query.Include("City").Include("Admin").Include("AgencyAvailableBuses");
             return base.AddInclude(query, search);
         }
+
+        public override async Task BeforeInsert(Database.Agency entity, Models.Agency.AgencyRequest insert)
+        {
+            if (insert.AvailableBuses != null && insert.AvailableBuses.Any())
+            {
+                entity.AgencyAvailableBuses = insert.AvailableBuses
+                    .Select(bus => new Database.AgencyAvailableBus
+                    {
+                        BusType = bus 
+                    })
+                    .ToList();
+            }
+        }
+
+
+        public override async Task BeforeUpdate(Database.Agency entity, Models.Agency.AgencyRequest update)
+        {
+            await this.ManageAvailableBuses(entity.Id, update);
+        }
+
+        private async Task ManageAvailableBuses(long agencyId, Models.Agency.AgencyRequest update)
+        {
+            var entity = await _context.Agencies
+                .Include(a => a.AgencyAvailableBuses)
+                .FirstOrDefaultAsync(a => a.Id == agencyId);
+
+            if (entity == null) return;
+
+            var busesToRemove = entity.AgencyAvailableBuses
+                .Where(ab => !update.AvailableBuses.Any(busType => ab.BusType == busType))
+                .ToList();
+
+            if (busesToRemove.Any())
+            {
+                busesToRemove.ForEach(bus =>
+                {
+                    entity.AgencyAvailableBuses.Remove(bus);
+                });
+            }
+
+            var busesToAdd = update.AvailableBuses
+                .Where(busType => !entity.AgencyAvailableBuses.Any(b => busType == b.BusType))
+                .ToList();
+
+            if (busesToAdd.Any())
+            {
+                foreach (var bus in busesToAdd)
+                {
+                    entity.AgencyAvailableBuses.Add(new Database.AgencyAvailableBus
+                    {
+                        BusType = bus, 
+                    });
+                }
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
     }
 }
